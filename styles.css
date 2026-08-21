@@ -1,0 +1,18 @@
+/* AgentWeb overrides on the Mintlify shell. */
+
+/* The Ask-a-question entry lives at the top of the page, not floating at
+   the bottom. */
+#assistant-entry {
+  position: fixed !important;
+  top: 72px !important;
+  bottom: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%);
+  z-index: 40;
+}
+
+/* Brand grammar: rectangular CTA, not a pill. */
+nav a[href*="agentweb.us/signup"],
+nav a[href*="agentweb.us/signup"] > * {
+  border-radius: 4px !important;
+}
