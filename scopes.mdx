@@ -1,0 +1,25 @@
+---
+title: "AgentWeb scopes and permissions"
+sidebarTitle: "Scopes"
+description: "Granular AgentWeb permission scopes for public scans, action maps, MCP tools, checkout creation, verification, and webhooks."
+---
+
+Scopes are granular and task-specific. Public discovery scopes cannot create checkout sessions, execute private actions, read credentials, access account-gated data, or mutate third-party systems.
+
+- `scan.public`: run public readiness scans without private account access.
+- `read.public`: read public pages and metadata.
+- `actions.list`: list mapped actions available to the caller.
+- `actions.execute`: execute approved mapped actions.
+- `setup.create`: request an Agent Map setup session.
+- `payment.quote`: read setup and usage pricing.
+- `create.checkout_session`: create Dodo hosted checkout only with scoped payment authority.
+- `verification.read`: read receipts, status proof, or signed setup artifacts.
+
+## Scope groups
+
+- Public discovery: `scan.public`, `read.public`.
+- Action map setup: `setup.create`, `payment.quote`.
+- Approved execution: `actions.list`, `actions.execute`, `verification.read`.
+- Delegated payment: `create.checkout_session` only, with amount limit, currency, expiry, revocation URL, receipt requirement, and verification requirement.
+
+Credentials, private payloads, raw prompts, card data, and unrestricted API keys are outside the public scan scope.

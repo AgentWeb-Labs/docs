@@ -3,27 +3,36 @@
   "name": "AgentWeb",
   "theme": "luma",
   "logo": {
-    "light": "https://media.brand.dev/9adaa2e3-7019-4bff-978a-78fdf9964fae.svg",
-    "dark": "https://media.brand.dev/9adaa2e3-7019-4bff-978a-78fdf9964fae.svg"
+    "light": "https://www.agentweb.us/logo-icon.png",
+    "dark": "https://www.agentweb.us/logo-icon.png"
   },
-  "favicon": "https://media.brand.dev/86d85d4d-1e06-465c-b44f-59ea625ca389.png",
+  "favicon": "https://www.agentweb.us/logo-icon.png",
   "colors": {
-    "primary": "#0c0c14",
-    "light": "#838486",
-    "dark": "#ecedee"
+    "primary": "#2CEDA6",
+    "light": "#2CEDA6",
+    "dark": "#2CEDA6"
+  },
+  "background": {
+    "color": {
+      "dark": "#05070C",
+      "light": "#FBFAF8"
+    }
+  },
+  "appearance": {
+    "default": "dark"
   },
   "font": {
     "headings": {
-      "family": "Geist"
+      "family": "Newsreader"
     },
     "body": {
-      "family": "Geist Mono"
+      "family": "Geist"
     }
   },
   "navbar": {
     "primary": {
       "type": "button",
-      "label": "Get started free",
+      "label": "Create your key",
       "href": "https://www.agentweb.us/signup"
     }
   },
@@ -33,50 +42,32 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Get Started",
-            "pages": [
-              "introduction",
-              "quickstart",
-              "how-it-works"
-            ]
+            "group": "Get started",
+            "pages": ["index", "quickstart", "install-agentweb"]
           },
           {
-            "group": "Core Concepts",
-            "pages": [
-              "concepts/action-maps",
-              "concepts/authentication",
-              "concepts/payments",
-              "concepts/verification"
-            ]
-          },
-          {
-            "group": "Guides",
-            "pages": [
-              "guides/connecting-agents",
-              "guides/target-site-connections",
-              "guides/agent-payments",
-              "guides/install-agentweb"
-            ]
+            "group": "Connect",
+            "pages": ["agent-auth", "mcp-apps"]
           },
           {
             "group": "Reference",
-            "pages": [
-              "reference/mcp-tools",
-              "reference/api",
-              "reference/webhooks",
-              "reference/discovery-urls"
-            ]
+            "pages": ["api", "scopes", "webhooks", "streaming", "sandbox"]
           },
           {
-            "group": "Plans & Support",
-            "pages": [
-              "pricing",
-              "security",
-              "faq"
-            ]
+            "group": "Commerce",
+            "pages": ["agent-commerce", "acp-ucp", "autonomous-agents"]
+          },
+          {
+            "group": "Plans",
+            "pages": ["pricing"]
           }
         ]
       }
     ]
+  },
+  "footer": {
+    "socials": {
+      "website": "https://www.agentweb.us"
+    }
   }
 }

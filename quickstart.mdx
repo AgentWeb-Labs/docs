@@ -1,123 +1,65 @@
 ---
-title: "AgentWeb Quickstart: Connect and Run Your First Action"
+title: "AgentWeb quickstart"
 sidebarTitle: "Quickstart"
-description: "Add the AgentWeb MCP server, verify coverage, create your account, and execute your first verified web action in under ten minutes."
+description: "Connect AgentWeb through MCP, discover supported website actions, authenticate safely, execute a mapped action, and verify the result."
 ---
 
-This guide walks you through connecting AgentWeb to the AI agent you already use, checking whether your target website and action are supported, authenticating, and running your first verified task.
+Connect AgentWeb to the AI agent you already use, check whether the target website and action are supported, then authenticate only when you are ready to list or execute an action.
 
-<Warning>
-  Never place passwords, raw card numbers, or unrestricted credentials in a tool request. AgentWeb vaults credentials through a hosted sign-in ceremony so sensitive values never enter the conversation.
-</Warning>
+## 1. Add the MCP server
 
-<Steps>
-  <Step title="Add the MCP server">
-    AgentWeb exposes a Streamable HTTP MCP server at `https://mcp.agentweb.us/mcp`.
+AgentWeb exposes a Streamable HTTP MCP server at `https://mcp.agentweb.us/mcp`.
 
-    If you use **Claude Code**, run:
+```
+claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp
+```
 
-    ```bash
-    claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp
-    ```
+Other MCP clients can add the same URL as a remote Streamable HTTP server.
 
-    If you use any other MCP client — Codex, Cursor, ChatGPT, or another compatible client — add the same URL as a remote Streamable HTTP server in your client's MCP settings. No other configuration is required at this stage.
-  </Step>
+## 2. Read and discover without an account
 
-  <Step title="Explore without an account">
-    You can inspect AgentWeb coverage and read public page content before creating an account. Two tools work anonymously — no API key required:
+Use `read_page` to retrieve accessible page content or `discover` to inspect AgentWeb coverage for a domain. Do not assume that a mapped domain supports every action on that website.
 
-    - **`read_page`** — retrieves accessible page content as clean text, links, forms, and metadata for a given URL.
-    - **`discover`** — inspects which Action Maps are available for a target domain and what authentication the site requires.
+## 3. Connect an AgentWeb account
 
-    Both tools are also available via REST: `GET /api/read` and `GET /api/discover`.
+Before account creation, show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy). Prefer `agentweb_start_claim_link_signup`, show only the returned `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the human signs in. The completed poll returns the API key once.
 
-    <Note>
-      Coverage is action-specific — a mapped domain does not mean every possible task on that site is supported. Always use `discover` before promising completion to the user.
-    </Note>
+Email-code signup through `agentweb_start_api_key_signup` and `agentweb_complete_api_key_signup` remains a fallback. Reconnect with:
 
-    Run `discover` against your target domain to confirm the action you need exists before proceeding to account creation.
-  </Step>
+```
+Authorization: Bearer aw_<key>
+```
 
-  <Step title="Create your AgentWeb account">
-    Before your agent can list or execute actions, you need an `aw_` API key. You receive **100 free credits** when you sign up. The preferred flow uses a **claim link** so you can review the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy) and sign in through a hosted page — no password enters the conversation.
+## 4. Select and prepare the action
 
-    **Preferred: claim-link flow**
+1. Discover AgentWeb with [/llms.txt](https://www.agentweb.us/llms.txt), [A2A Agent Card](https://www.agentweb.us/.well-known/agent-card.json), [OpenAPI](https://www.agentweb.us/openapi.json), and [MCP tools](https://www.agentweb.us/.well-known/mcp/tools.json).
+2. If the user has no `aw_` key, show them the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy), then call `agentweb_start_claim_link_signup`, show only `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the user signs in. The poll result returns the key, `welcome_message`, and setup command; send `welcome_message` in the original conversation. Raw HTTP fallback: `POST https://mcp.agentweb.us/agent/identity` then `POST https://mcp.agentweb.us/oauth2/token`. Email-only agent signup is not supported. Email-code fallback: `agentweb_start_api_key_signup` then `agentweb_complete_api_key_signup`. A2A agents call `tasks/create` with `task_type=start_api_key_signup`, then `task_type=complete_api_key_signup`. Raw email-code clients can use `POST https://mcp.agentweb.us/api/register` and `POST https://mcp.agentweb.us/api/verify`.
+3. Call `list_actions` after authentication.
+4. Inspect the selected action's required fields, account requirements, and possible outcomes.
+5. Before partner execution, call `agentweb_auth_status` or `agentweb_connection_status`. If Hermes is not connected, call `agentweb_start_connection`, have the human complete the login view, then poll with `agentweb_poll_connection`.
+6. If another target site needs a user account, call `agentweb_start_connection`, show the returned connection URL to the human, and poll `agentweb_poll_connection` until the connection is ready.
+7. Run `POST /api/readiness/scan` with a company URL.
+8. When a user asks to install AgentWeb for a repo or business, read [Install AgentWeb](/install-agentweb) and call `agentweb_install_agentweb`.
+9. Read [action catalog](https://www.agentweb.us/.well-known/action-catalog.json) for allowed actions, disallowed actions, required fields, auth, payment, and verification rules.
+10. Use `agentweb_price_setup` to understand package, usage meters, and payment-authority requirements.
+11. Before any paid, irreversible, or externally visible action, summarize the exact inputs and obtain the required approval.
+12. Create checkout only after the customer approves scoped payment authority.
+13. Wait for Dodo webhook credit fulfillment, then verify install and execute approved Agent Maps.
 
-    1. Ask your agent to call `agentweb_start_claim_link_signup`.
-    2. Your agent returns a `verification_uri_complete` URL. Open it in your browser.
-    3. Review the Terms and Privacy Policy, then sign in.
-    4. Your agent polls `agentweb_poll_claim_link_signup` with the `deviceCode` returned in step 1 and receives the API key once sign-in is complete.
+## 5. Execute and verify
 
-    **Fallback: email-code flow**
+Call `execute` with the selected Action Map and declared inputs. Treat the returned status, verification artifact, receipt, or structured failure as the source of truth. Never infer completion only because a request was accepted.
 
-    If the claim-link flow is unavailable, use the two-step email-code flow:
+## Safety rules
 
-    1. Call `agentweb_start_api_key_signup` with your email address.
-    2. Enter the verification code sent to your inbox by calling `agentweb_complete_api_key_signup`.
+- Never place passwords, raw card numbers, unrestricted credentials, or unrelated private conversation content in a tool request.
+- Stop when the action is unsupported, unsafe, expired, over a limit, or missing approval.
+- Use a first-party API when it already provides the full required workflow and access model.
 
-    **Reconnect with your key**
+## Reference
 
-    Once you have your key, instruct your agent to reconnect using:
-
-    ```http
-    Authorization: Bearer aw_<key>
-    ```
-
-    Your agent now has authenticated access to the full AgentWeb tool set.
-  </Step>
-
-  <Step title="List available actions">
-    After authentication, call `list_actions` to retrieve the current catalog of supported actions. Each action entry includes:
-
-    - Required input fields and their types
-    - Account connection requirements
-    - Possible outcome states and verification behavior
-
-    Review the action's requirements before executing, especially whether it needs a connected account on the target site.
-  </Step>
-
-  <Step title="Connect a target-site account (if required)">
-    Some actions require your account on the target website — for example, to place an order on a merchant that needs you to be signed in. Before executing, check whether a connection is already in place:
-
-    - Call `agentweb_auth_status` to check your AgentWeb authentication state.
-    - Call `agentweb_connection_status` to check whether a required target-site account is already connected.
-
-    If a connection is missing or expired, start the connection flow:
-
-    1. Call `agentweb_start_connection`. AgentWeb returns a connection URL.
-    2. Open the URL in your browser and complete the sign-in on the target site.
-    3. Your agent polls `agentweb_poll_connection` until the connection status is ready.
-
-    Once the connection is confirmed, the action can proceed. AgentWeb vaults the credentials — they are never passed back to the agent.
-  </Step>
-
-  <Step title="Execute and verify">
-    With authentication and any required connections in place, call `execute` with the selected Action Map name and your declared inputs. The exact field names come from the action's schema returned by `list_actions`.
-
-    ```json
-    {
-      "action": "<action_id>",
-      "inputs": {
-        "<field_name>": "<value>"
-      }
-    }
-    ```
-
-    For readiness checks before execution, you can also call `POST /api/readiness/scan` with a target URL to confirm a site is reachable and mapped.
-
-    AgentWeb runs the action as a tracked job and returns one of the following:
-
-    - **Verified receipt** — structured confirmation with identifiers from the system of record
-    - **Booking reference or submitted record** — artifact tied to the real site outcome
-    - **Structured failure** — explicit failure state with the reason and any recovery steps
-
-    Treat the returned status and verification artifact as the source of truth. Never infer completion only because a request was accepted. If the job returns a pending or ambiguous state, wait for the next update rather than assuming success.
-  </Step>
-</Steps>
-
-## What's next
-
-- [How It Works](/how-it-works) — understand the full discovery → authority → execution → verification pipeline
-- [MCP Tools](/reference/mcp-tools) — browse every tool with inputs, outputs, and examples
-- [API Reference](/reference/api) — explore the REST endpoints and authentication schemes
-- [Mapped-site library](https://www.agentweb.us/library) — browse domains and actions available today
+- [MCP tools and discovery files](/mcp-apps)
+- [Authentication and connections](/agent-auth)
+- [Public MCP tool manifest](https://www.agentweb.us/.well-known/mcp/tools.json)
+- [OpenAPI specification](https://www.agentweb.us/openapi.json)
+- [Mapped-site library](https://www.agentweb.us/library)

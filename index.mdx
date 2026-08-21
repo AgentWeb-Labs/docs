@@ -1,59 +1,25 @@
 ---
-title: "AgentWeb: Structured, Verified Web Actions for Agents"
-sidebarTitle: "Home"
-description: "AgentWeb gives AI agents structured, verified access to real websites through maintained Action Maps, MCP, and REST API — fast, typed, and receipted."
+title: "AgentWeb documentation"
+sidebarTitle: "Overview"
+description: "AgentWeb documentation for connecting an AI agent, discovering supported website actions, authenticating, executing, and verifying results."
 ---
 
-AgentWeb is a network-level web action layer that connects your AI agent to supported tasks on real websites. Instead of driving a browser, your agent calls named actions with typed inputs and receives structured results plus a verification receipt for every completed task.
+AgentWeb connects an existing AI agent to supported web actions through MCP and API. Start with discovery, create an account only when execution requires one, and check the returned status or verification before reporting completion.
 
-<CardGroup cols={2}>
-  <Card title="Introduction" icon="book-open" href="/introduction">
-    Learn what AgentWeb is, how it compares to browser automation, and when to use it.
-  </Card>
-  <Card title="Quickstart" icon="bolt" href="/quickstart">
-    Add the MCP server, create your account, and run your first verified web task in minutes.
-  </Card>
-  <Card title="MCP Tools" icon="wrench" href="/reference/mcp-tools">
-    Browse every tool exposed by the AgentWeb MCP server, with inputs, outputs, and examples.
-  </Card>
-  <Card title="API Reference" icon="code" href="/reference/api">
-    Explore the REST endpoints, authentication schemes, and response schemas.
-  </Card>
-</CardGroup>
+## Start here
 
-## Connect in three steps
+- [AgentWeb quickstart](/quickstart)
+- [MCP server and tool definitions](/mcp-apps)
+- [Authentication and target-site connections](/agent-auth)
+- [Developer overview](https://www.agentweb.us/developers)
+- [OpenAPI specification](https://www.agentweb.us/openapi.json)
+- [Public MCP tool manifest](https://www.agentweb.us/.well-known/mcp/tools.json)
+- [Full agent-readable reference](https://www.agentweb.us/llms-full.txt)
 
-<Steps>
-  <Step title="Add the MCP server">
-    Run one command in Claude Code to register the AgentWeb Streamable HTTP MCP server:
+## Execution sequence
 
-    ```bash
-    claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp
-    ```
-
-    Using a different MCP client? Add `https://mcp.agentweb.us/mcp` as a remote Streamable HTTP server in your client's settings.
-  </Step>
-  <Step title="Sign in once via the claim link">
-    Your agent will return a `verification_uri_complete` link. Open it to review the Terms and Privacy Policy, sign in, and your agent automatically receives an `aw_` API key and reconnects with it. No password ever enters the conversation.
-  </Step>
-  <Step title="Run a real web task">
-    Ask your agent to complete a supported website task — order, book, submit, or track. It calls the matching Action Map, executes at the network level, and returns structured results with a verification receipt you can inspect.
-  </Step>
-</Steps>
-
-## Explore further
-
-<CardGroup cols={2}>
-  <Card title="Pricing" icon="credit-card" href="/pricing">
-    100 free credits at signup. Pay per verified action, with automatic refunds for failures.
-  </Card>
-  <Card title="Security" icon="shield-check" href="/security">
-    Credentials are vaulted and never exposed to the agent. Every action is scoped and receipted.
-  </Card>
-  <Card title="How It Works" icon="diagram-project" href="/how-it-works">
-    Follow a request from user intent through discovery, authority, execution, and verified receipt.
-  </Card>
-  <Card title="FAQ" icon="circle-question" href="/faq">
-    Answers to common questions about coverage, authentication, payments, and agent compatibility.
-  </Card>
-</CardGroup>
+1. Read a page or call discovery for the target domain.
+2. Authenticate before listing or executing mapped actions.
+3. Connect the target-site account if the selected action requires it.
+4. Confirm the inputs and obtain approval for consequential actions.
+5. Execute once and use the structured result to report success, failure, or required intervention.

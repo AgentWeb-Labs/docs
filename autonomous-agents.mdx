@@ -1,0 +1,11 @@
+---
+title: "Autonomous agent setup"
+sidebarTitle: "Autonomous agents"
+description: "How autonomous agents discover AgentWeb, scan a company URL, request setup, create checkout with payment authority, and verify installation."
+---
+
+1. Read [llms.txt](https://www.agentweb.us/llms.txt), [OpenAPI](https://www.agentweb.us/openapi.json), [A2A Agent Card](https://www.agentweb.us/.well-known/agent-card.json), and [MCP tools](https://www.agentweb.us/.well-known/mcp/tools.json).
+2. Run `POST /api/readiness/scan` for the target company URL.
+3. Inspect [action catalog](https://www.agentweb.us/.well-known/action-catalog.json), [scopes](/scopes), and [pricing](https://www.agentweb.us/pricing.md).
+4. Create checkout only after the customer approves payment authority.
+5. Use webhook-backed entitlements and verification artifacts before treating setup as complete.

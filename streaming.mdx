@@ -1,0 +1,30 @@
+---
+title: "Streaming and MCP transport"
+sidebarTitle: "Streaming"
+description: "AgentWeb MCP Streamable HTTP, streaming response, error recovery, retry, and rate-limit behavior for agents."
+---
+
+AgentWeb's runtime endpoint at `https://mcp.agentweb.us/mcp` uses MCP Streamable HTTP. Public tool metadata is available before authentication; execution requires scoped credentials.
+
+## SSE and server-sent events
+
+Agents may request streaming progress with `Accept: text/event-stream`. Streaming responses use `Content-Type: text/event-stream` for server-sent events when an approved mapped workflow has multiple execution stages.
+
+## Error recovery
+
+Structured errors include an error code, human-readable message, retryability, and rate-limit headers when relevant. Agents should honor `Retry-After` and avoid retrying irreversible actions without a fresh idempotency key and verification state.
+
+## Streaming semantics
+
+Long-running mapped workflows may stream progress over the MCP transport and finish with a typed JSON result containing workflow ID, completion status, verification artifact, receipt, or structured failure class.
+
+```
+POST https://mcp.agentweb.us/mcp
+Accept: text/event-stream
+
+event: progress
+data: {"workflow_id":"wf_123","stage":"checkout_authority_validated"}
+
+event: complete
+data: {"workflow_id":"wf_123","status":"verified","verification_artifact":{}}
+```
