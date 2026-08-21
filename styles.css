@@ -1,14 +1,16 @@
 /* AgentWeb overrides on the Mintlify shell. */
 
-/* The Ask-a-question entry lives at the top of the page, not floating at
-   the bottom. */
-#assistant-entry {
-  position: fixed !important;
-  top: 72px !important;
-  bottom: auto !important;
-  left: 50% !important;
-  transform: translateX(-50%);
-  z-index: 40;
+/* Desktop: the Ask-a-question entry lives at the top, under the navbar.
+   Mobile keeps the default bottom placement - the top is too crowded. */
+@media (min-width: 1024px) {
+  #assistant-entry {
+    position: fixed !important;
+    top: 72px !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+    z-index: 40;
+  }
 }
 
 /* Brand grammar: rectangular CTA, not a pill. */
