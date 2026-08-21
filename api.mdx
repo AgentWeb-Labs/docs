@@ -23,6 +23,9 @@ Authorization: Bearer aw_<key>
 
 ### Execute
 
+<Info>`execute` is the core of AgentWeb: ~1 credit per completed action, failed actions refunded, and a verified receipt on every task.</Info>
+
+
 `POST /api/execute` runs one of the verified actions AgentWeb has learned for a supported domain. Get exact action names and parameter keys from `/api/discover` first.
 
 ```json
@@ -58,6 +61,6 @@ Authorization: Bearer aw_<key>
 ## Discovery surfaces
 
 - [`/.well-known/mcp/tools.json`](https://mcp.agentweb.us/.well-known/mcp/tools.json) — public MCP tool manifest
-- [`/.well-known/action-catalog.json`](https://mcp.agentweb.us/.well-known/action-catalog.json) — allowed and disallowed action families
-- [`/.well-known/sandbox.json`](https://mcp.agentweb.us/.well-known/sandbox.json) — sandbox limits
+- [`/.well-known/action-catalog.json`](https://www.agentweb.us/.well-known/action-catalog.json) — allowed and disallowed action families
+- [`/.well-known/sandbox.json`](https://www.agentweb.us/.well-known/sandbox.json) — sandbox limits
 - [`/openapi.json`](https://www.agentweb.us/openapi.json) — this API, fully specified

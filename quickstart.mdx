@@ -6,6 +6,8 @@ description: "Connect AgentWeb through MCP, discover supported website actions, 
 
 Connect AgentWeb to the AI agent you already use, authenticate, check whether the target website and action are supported, then call `execute` to run a mapped action. Executing mapped actions through `execute` (MCP) or `POST /api/execute` (REST) is the core capability.
 
+<Note>Every live tool — including `read_page` and `discover` — requires an AgentWeb `aw_` API key. Only the signup tools and `agentweb_auth_status` work anonymously.</Note>
+
 ## 1. Add the MCP server
 
 AgentWeb exposes a Streamable HTTP MCP server at `https://mcp.agentweb.us/mcp`.
