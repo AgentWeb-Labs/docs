@@ -5,13 +5,3 @@ nav a[href*="agentweb.us/signup"],
 nav a[href*="agentweb.us/signup"] > * {
   border-radius: 4px !important;
 }
-
-/* Click-pinned TOC highlight (see toc-highlight.js): the clicked entry is
-   green; while a pin is held, the scrollspy's own pick is muted so there
-   is exactly one highlight. */
-.toc-item a[data-aw-current] {
-  color: #2ceda6 !important;
-}
-body[data-aw-toc-pinned] .toc-item a[aria-current='location']:not([data-aw-current]) {
-  color: inherit !important;
-}
