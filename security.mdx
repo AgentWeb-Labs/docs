@@ -1,0 +1,97 @@
+---
+title: "AgentWeb Security: Scoped, Isolated, and Auditable"
+sidebarTitle: "Security"
+description: "AgentWeb keeps every consequential action scoped to your account, isolated from other users, and backed by a verifiable receipt you can inspect."
+---
+
+AgentWeb is built around the principle that handing tasks to an agent should reduce manual work without weakening controls. Every consequential action is scoped to the authorizing account, isolated from other customers, and receipted so you can verify what happened. The safety model begins before an action runs — the system checks identity, permissions, account binding, and limits before it ever reaches an external service.
+
+## Core security principles
+
+<CardGroup cols={2}>
+  <Card title="Account Isolation" icon="shield-halved">
+    Connected accounts are customer-specific resources. One user's connection cannot become another user's authority, shared pool, or fallback. Tenant isolation and explicit account binding keep every execution attached to the person who authorized it — even across workspaces or teams that share a plan.
+  </Card>
+
+  <Card title="Secrets Outside the Model" icon="key">
+    Agents work with references and permissions, not raw credentials. Raw card data, unrestricted service keys, and private page content stay outside the model. Revocation is straightforward because there are no credential copies scattered through conversation history — you can disable a connection and it is immediately gone.
+  </Card>
+
+  <Card title="Scoped Payment Controls" icon="credit-card">
+    Paid actions require an approved amount limit, currency, expiry, revocation path, receipt, and verification artifact. Higher-risk workflows can require a human checkpoint before execution proceeds. Raw payment credentials never reach the merchant workflow.
+  </Card>
+
+  <Card title="Auditability" icon="magnifying-glass">
+    Every consequential action records the job, authority context, target workflow, account reference, state transitions, result, and verification artifact. This trail supports your own review and any incident investigation — without exposing secrets in the output.
+  </Card>
+</CardGroup>
+
+## Safe refusals
+
+Unsupported, expired, over-limit, or unverifiable requests fail cleanly. When a request violates a control, the system returns a structured reason and the smallest recovery step. It never improvises around an approval boundary or declares success because a page looked promising.
+
+This is the security posture AgentWeb is building toward: scoped by default, isolated by customer, revocable by you, and accountable after execution.
+
+## Structural threat mitigations
+
+<AccordionGroup>
+  <Accordion title="Cross-tenant access">
+    **Control:** Tenant and account binding.
+
+    Connected accounts are bound to a specific customer. One customer's account cannot be referenced by another customer's workflow or agent.
+  </Accordion>
+
+  <Accordion title="Stale permissions">
+    **Control:** Scoped authority, expiry, and revocation.
+
+    Permissions name the action, account, scope, approval requirement, and expiry. Old permissions expire automatically and can be revoked at any time from your dashboard without contacting support.
+  </Accordion>
+
+  <Accordion title="Credential leakage">
+    **Control:** Credential boundaries keep secrets away from the model.
+
+    AgentWeb uses scoped credentials and secure connection handling so the model works with references rather than the underlying secret. You can rotate or revoke without chasing copies through conversation history.
+  </Accordion>
+
+  <Accordion title="Duplicate side effects">
+    **Control:** Idempotent jobs and state tracking.
+
+    Job state is tracked so the same action does not execute twice from a retry or race. Missing authority does not become a best-effort run.
+  </Accordion>
+
+  <Accordion title="False completion">
+    **Control:** Receipts and verification artifacts.
+
+    An action remains pending or unresolved until the evidence supports completion. If the receipt cannot be verified, the result stays unresolved — the system never reports success from an ambiguous state.
+  </Accordion>
+
+  <Accordion title="Prompt injection">
+    **Control:** Structural controls, not model instructions.
+
+    Access boundaries are enforced at the execution layer, not through model memory or a system-prompt rule. A request for private data outside a mapped action does not become an invitation to browse.
+  </Accordion>
+</AccordionGroup>
+
+## Credential boundaries
+
+<Warning>
+  Follow these practices to keep your credentials and your users' data safe:
+
+  - Never send passwords, session cookies, raw card numbers, or unrestricted third-party keys through chat or action parameters.
+  - Keep AgentWeb API keys out of source control, analytics pipelines, screenshots, and public output.
+  - Revoke or rotate access immediately when a key or connection may have been exposed.
+  - Use the narrowest supported connection and action for each requested task.
+</Warning>
+
+## What you can review
+
+Your dashboard gives you direct visibility into every active authority:
+
+- Which accounts are connected and to which workflows
+- Spending limits, approval modes, and authority expiry
+- How to revoke a connection or authority without contacting support
+- Full job history with account reference, authority, result, and proof artifact
+
+<Tip>
+  You can inspect connections and revoke authority from your dashboard at any time — no support ticket required.
+</Tip>

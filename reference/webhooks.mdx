@@ -1,0 +1,101 @@
+---
+title: "AgentWeb Webhooks and Verification Artifacts Guide"
+sidebarTitle: "Webhooks"
+description: "How AgentWeb uses webhooks and verification artifacts to confirm payment completion and prove that an action succeeded or failed to your agent."
+---
+
+AgentWeb uses webhooks and structured verification artifacts so your agent can distinguish a started payment, a completed payment, and a verified action. An accepted request or a checkout redirect is not proof of completion — always wait for webhook-backed confirmation before treating any consequential operation as done.
+
+## Webhook endpoints
+
+### POST /api/billing/webhook
+
+This endpoint receives Dodo-signed payment events. AgentWeb verifies three headers against the raw request body before applying any credits:
+
+| Header | Purpose |
+|--------|---------|
+| `webhook-id` | Unique identifier for this webhook delivery |
+| `webhook-signature` | HMAC signature used to verify payload integrity |
+| `webhook-timestamp` | Timestamp that guards against replay attacks |
+
+Credits are only granted after this verification passes. A successful Dodo checkout that has not yet triggered a verified webhook event has not produced credits.
+
+<Warning>
+  External agents must NOT call `/api/billing/webhook` directly. This endpoint is reserved for Dodo-signed delivery — any request arriving without a valid Dodo signature is rejected.
+</Warning>
+
+### POST /telemetry/agent-event
+
+This endpoint records public agent attribution events for analytics and attribution. It does not store raw prompts, payment credentials, or private customer payloads.
+
+## Verification artifacts
+
+When `execute` completes — whether successfully or not — it returns a verification artifact. Treat this object as the source of truth for what happened. Do not infer success from a submitted request or a redirect.
+
+<ResponseField name="source" type="string" required>
+  The system that produced the result, identifying the AgentWeb Action Map execution layer.
+</ResponseField>
+
+<ResponseField name="timestamp" type="string" required>
+  ISO 8601 completion time — the moment the action reached its final state.
+</ResponseField>
+
+<ResponseField name="status" type="string" required>
+  The outcome of the action: `completed`, `pending`, or `failed`. Never rewritten from `pending` or `failed` to `completed` after the fact.
+</ResponseField>
+
+<ResponseField name="evidence" type="object" required>
+  Proof of what happened — typically a receipt, booking reference, submission ID, or similar artifact depending on the action type.
+
+  <Expandable title="Payment evidence fields">
+    <ResponseField name="merchant" type="string">
+      The merchant or provider that accepted the transaction.
+    </ResponseField>
+
+    <ResponseField name="amount" type="number">
+      Transaction amount in the smallest currency unit (e.g., cents).
+    </ResponseField>
+
+    <ResponseField name="currency" type="string">
+      ISO 4217 currency code (e.g., `usd`).
+    </ResponseField>
+
+    <ResponseField name="transaction_reference" type="string">
+      The provider-issued transaction or order reference.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="signature_metadata" type="object" required>
+  Proof of origin — metadata that establishes the verification artifact was produced by the AgentWeb execution layer and not fabricated downstream.
+</ResponseField>
+
+<ResponseField name="failure_class" type="string">
+  Present when `status` is `failed`. Categorizes the type of failure (for example, `auth_required`, `input_invalid`, `site_unavailable`) so your agent can decide whether to retry or surface an error.
+</ResponseField>
+
+## Payment schemas
+
+AgentWeb publishes machine-readable schemas for payment authority and receipt artifacts. Read these files when building integrations that handle delegated payment workflows:
+
+- **Payment authority schema:** [`/.well-known/payment-authority.schema.json`](https://www.agentweb.us/.well-known/payment-authority.schema.json)
+- **Payment artifact schema:** [`/.well-known/payment-artifact.schema.json`](https://www.agentweb.us/.well-known/payment-artifact.schema.json)
+- **Agent commerce metadata:** [`/.well-known/agent-commerce.json`](https://www.agentweb.us/.well-known/agent-commerce.json)
+
+## Agent rules for payments and verification
+
+<Note>
+  Always wait for webhook-backed credit fulfillment before treating a payment as complete. A Dodo checkout redirect confirms the customer reached the checkout page — it does not confirm payment settlement.
+</Note>
+
+<Note>
+  Completed actions return a verification artifact. Use that artifact — not the HTTP response status — as the authoritative record of what occurred.
+</Note>
+
+<Warning>
+  A checkout redirect is not proof of entitlement. Credits are only granted after the Dodo webhook delivers a verified event to `/api/billing/webhook`.
+</Warning>
+
+<Warning>
+  If verification cannot be established, the action remains `pending` or `failed`. AgentWeb never rewrites an unverified outcome as `completed`.
+</Warning>

@@ -1,0 +1,92 @@
+---
+title: "Verification Receipts: Proof of Every Completed Action"
+sidebarTitle: "Verification"
+description: "Every completed AgentWeb action returns a structured artifact with source, timestamp, status, evidence, and signature metadata — not just a success flag."
+---
+
+Verification in AgentWeb means that every completed action returns a structured artifact carrying source, timestamp, status, evidence, and signature metadata. A success message from a page is not sufficient. Execution is considered complete only when defined evidence exists — not when the request was accepted or a redirect occurred.
+
+This design makes failure visible and unambiguous. If the required evidence cannot be found, the action stays pending or unresolved. It is never rewritten as a success to satisfy a positive-looking response.
+
+## What a verification artifact contains
+
+<ResponseField name="source" type="string" required>
+  The system that produced the result — identifies which workflow or integration generated the artifact.
+</ResponseField>
+
+<ResponseField name="timestamp" type="string" required>
+  An ISO 8601 timestamp recording when the action completed.
+</ResponseField>
+
+<ResponseField name="status" type="enum" required>
+  The final state of the action. One of `completed`, `pending`, or `failed`.
+</ResponseField>
+
+<ResponseField name="evidence" type="object" required>
+  The structured proof of completion. Depending on the action type, this field contains a receipt, booking reference, order confirmation, submission ID, or other structured data returned by the target site.
+</ResponseField>
+
+<ResponseField name="signature_metadata" type="object">
+  Proof-of-origin information that allows downstream consumers to verify the artifact was produced by AgentWeb and has not been modified.
+</ResponseField>
+
+<ResponseField name="failure_class" type="string">
+  Present only when `status` is `failed`. Identifies the category of failure — for example, `expired_connection`, `missing_input`, `over_limit`, or `site_error` — so your agent can return a specific recovery step instead of a generic error.
+</ResponseField>
+
+## Ambiguous states
+
+When execution completes but the expected evidence cannot be retrieved — for example, a booking reference was not returned, or a payment confirmation page was not reachable — the action remains in a `pending` or `unresolved` state. AgentWeb does not promote an uncertain result to `completed`.
+
+Your agent should surface this state to the user and provide the `failure_class` or missing-evidence detail. Do not interpret a checkout redirect or a "thank you" page as sufficient proof of a completed action.
+
+## Webhooks and payment verification
+
+AgentWeb uses a signed webhook to close the payment loop before applying credits or entitlements.
+
+<Note>
+  External agents must not call the Dodo webhook endpoint directly. Payment settlement is handled internally after AgentWeb receives and verifies the signed event from Dodo.
+</Note>
+
+The webhook endpoint is `POST /api/billing/webhook`. Before applying any credits, AgentWeb verifies three headers against the raw request body:
+
+| Header | Purpose |
+|---|---|
+| `webhook-id` | Unique identifier for the event |
+| `webhook-signature` | HMAC signature over the raw body |
+| `webhook-timestamp` | Timestamp used to prevent replay attacks |
+
+Checkout redirects are not proof of entitlement. Credits are granted only after this verification step completes successfully.
+
+## Receipt artifacts
+
+A receipt artifact is the portable, durable form of a verification result. It contains everything needed to confirm an outcome without re-running the workflow or accessing the originating account.
+
+<Accordion title="Fields in a receipt artifact">
+  **Core fields (all action types)**
+  - `identifier` — a stable unique ID for this receipt
+  - `workflow` — the Action Map that was executed
+  - `job` — the specific job instance reference
+  - `completion_status` — the final state of the workflow
+  - `timestamp` — when the action completed
+  - `source` — the system that produced the artifact
+  - `evidence` — booking code, submission ID, confirmation reference, or structured data
+
+  **Additional fields for payment receipts**
+  - `merchant` — the merchant name and identifier
+  - `amount` — the transaction value
+  - `currency` — the currency code
+  - `transaction_reference` — the payment processor's reference for reconciliation
+</Accordion>
+
+Receipt artifacts are designed to be shared downstream. Another agent or system can use a receipt to continue a workflow — confirm an order, look up a booking, or verify a submission — without receiving the account credentials or authority that produced it.
+
+<Tip>
+  A receipt artifact outlasts the authority that created it. You can safely share it with downstream agents or store it for reconciliation without passing along any account credentials or connection state.
+</Tip>
+
+## Why verification matters for agent systems
+
+Agents that operate faster than human review need a reliable signal for distinguishing a genuinely completed action from an accepted request that may still fail. Verification artifacts give your agent, your users, and your audit trail a single structured record with the same fields regardless of which action was executed.
+
+This structured history supports customer review, finance reconciliation, support investigations, and downstream automation — all from the same stable identifiers attached to every job AgentWeb executes.

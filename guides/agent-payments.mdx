@@ -1,0 +1,93 @@
+---
+title: "Enable Agent-Initiated Payments with AgentWeb Card"
+sidebarTitle: "Agent Payments"
+description: "Set up the AgentWeb Card so your agent can make purchases on websites using one-time virtual cards — your real card number is never exposed."
+---
+
+AgentWeb supports two distinct payment concepts. Understanding the difference helps you configure the right level of payment authority for your agent.
+
+<CardGroup cols={2}>
+  <Card title="Credits" icon="coins">
+    Credits pay for execution — approximately one credit per completed action. Credits are included in your plan and are auto-refunded if an action fails before completion.
+  </Card>
+  <Card title="AgentWeb Card" icon="credit-card">
+    The AgentWeb Card lets your agent pay for purchases on external websites using one-time virtual cards. Available on **Pro and Max** plans only.
+  </Card>
+</CardGroup>
+
+<Note>
+  On the Free plan, your agent cannot make purchases on external websites. Upgrade to Pro or Max to enable the AgentWeb Card and agent-initiated checkout.
+</Note>
+
+## Set up the AgentWeb Card
+
+<Steps>
+  <Step title="Sign in to your dashboard">
+    Go to your AgentWeb dashboard and navigate to the payment settings section.
+  </Step>
+  <Step title="Enroll your payment card">
+    Enroll your real payment card using a device-bound passkey. Your real card number is stored in the secure vault and is never shown to your agent, surfaced in conversation, or transmitted to merchants during purchases.
+  </Step>
+  <Step title="Set spending limits">
+    Configure a per-purchase spending limit and a daily limit. Your agent cannot approve or initiate a purchase that exceeds either limit, and the limits can be updated from the dashboard at any time.
+  </Step>
+  <Step title="Agent is ready to purchase">
+    Once enrollment is complete, your agent can mint a one-time virtual card for each transaction. The virtual card is charged to your enrolled payment method, but merchants never see your real card number.
+  </Step>
+</Steps>
+
+## How agent purchases work
+
+Before your agent initiates any purchase, it calls `agentweb_price_setup` to retrieve the current package details, usage meters, and payment-authority requirements for the workflow. This call gives your agent the full picture of what a purchase will involve before asking for your approval.
+
+When a paid action is ready to proceed, your agent summarizes exactly what will be purchased — including the item, amount, recipient site, and any relevant limits — and waits for your explicit approval. Your agent does not proceed without it.
+
+After you approve, your agent calls `agentweb_create_checkout_session` to obtain a Dodo hosted checkout handoff URL. You are redirected to the Dodo checkout flow in your browser, where the transaction is completed. AgentWeb grants entitlement — and any associated credits — only after a Dodo-signed webhook verifies the payment state. A checkout redirect alone is not proof of entitlement.
+
+## Payment authority
+
+Every agent-initiated payment requires a delegated payment authority object that defines exactly what the agent is permitted to do. Here is an example:
+
+```json
+{
+  "authority_id": "auth_123",
+  "principal": {
+    "type": "business",
+    "id": "example_co",
+    "agent_provider": "claude_code"
+  },
+  "scope": ["price.setup", "create.checkout_session"],
+  "amount_limit": { "value": 500000, "interval": "single_use" },
+  "currency": "usd",
+  "expires_at": "2026-05-08T00:00:00Z",
+  "revocation_url": "https://example.com/agent-authority/auth_123/revoke",
+  "receipt_required": true,
+  "verification_required": true
+}
+```
+
+Key fields at a glance:
+
+| Field | Purpose |
+|---|---|
+| `authority_id` | Unique identifier for this authority grant |
+| `principal` | Who the agent is acting on behalf of and which agent provider is involved |
+| `scope` | The specific operations the agent is permitted to invoke |
+| `amount_limit` | Maximum spend value and whether the authority is single-use or recurring |
+| `currency` | Currency for the amount limit |
+| `expires_at` | Hard expiry after which the authority is no longer valid |
+| `revocation_url` | URL to call to immediately cancel the authority |
+| `receipt_required` | Whether a receipt must be returned after the transaction |
+| `verification_required` | Whether a signed verification artifact is required |
+
+<Warning>
+  Agents must never collect raw card numbers in conversation. Any request that asks your agent to handle, repeat, or forward card numbers should be refused.
+</Warning>
+
+<Warning>
+  A checkout redirect is **not** proof of entitlement. Your agent must wait for Dodo webhook signature verification before treating a purchase as complete or granting any downstream access.
+</Warning>
+
+<Tip>
+  You can revoke payment authority at any time from your AgentWeb dashboard without losing your execution history or any previously verified receipts.
+</Tip>

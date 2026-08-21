@@ -1,0 +1,100 @@
+{
+  "projectType": "saas",
+  "projectName": "AgentWeb",
+  "projectDescription": "AgentWeb is a network-level web action layer that gives AI agents structured, verified, and receipted access to real websites through maintained Action Maps, MCP, and REST API — replacing brittle browser automation with fast, typed, auditable task execution.",
+  "theme": "luma",
+  "primaryColor": "#0c0c14",
+  "lightColor": "#838486",
+  "darkColor": "#ecedee",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "how-it-works"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/action-maps",
+              "concepts/authentication",
+              "concepts/payments",
+              "concepts/verification"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/connecting-agents",
+              "guides/target-site-connections",
+              "guides/agent-payments",
+              "guides/install-agentweb"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/mcp-tools",
+              "reference/api",
+              "reference/webhooks",
+              "reference/discovery-urls"
+            ]
+          },
+          {
+            "group": "Plans & Support",
+            "pages": [
+              "pricing",
+              "security",
+              "faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Maintained Action Maps for supported websites (ordering, booking, submitting, tracking)",
+    "Streamable HTTP MCP server at mcp.agentweb.us/mcp",
+    "Claim-link and email-code agent account signup flows",
+    "Target-site account connections with polling",
+    "Scoped payment authority with Dodo hosted checkout",
+    "Webhook-backed credit fulfillment and verification artifacts",
+    "read_page and discover tools usable without authentication",
+    "Per-action credit metering with automatic refund on failure",
+    "AgentWeb Card for agent-initiated payments (Pro/Max)",
+    "Business install flow (scan, plan, PR generation, verify)"
+  ],
+  "publicApiSurface": [
+    "MCP tool: read_page",
+    "MCP tool: discover",
+    "MCP tool: list_actions",
+    "MCP tool: execute",
+    "MCP tool: agentweb_start_claim_link_signup",
+    "MCP tool: agentweb_poll_claim_link_signup",
+    "MCP tool: agentweb_start_api_key_signup",
+    "MCP tool: agentweb_complete_api_key_signup",
+    "MCP tool: agentweb_start_connection",
+    "MCP tool: agentweb_poll_connection",
+    "MCP tool: agentweb_auth_status",
+    "MCP tool: agentweb_connection_status",
+    "MCP tool: agentweb_scan_business",
+    "MCP tool: agentweb_install_agentweb",
+    "MCP tool: agentweb_price_setup",
+    "MCP tool: agentweb_create_checkout_session",
+    "MCP tool: agentweb_verify_install",
+    "REST: POST /api/readiness/scan",
+    "REST: POST /api/billing/create-checkout-session",
+    "REST: POST /api/billing/webhook",
+    "REST: GET https://mcp.agentweb.us/api/read",
+    "REST: GET https://mcp.agentweb.us/api/discover",
+    "REST: POST https://mcp.agentweb.us/agent/identity",
+    "REST: POST https://mcp.agentweb.us/oauth2/token",
+    "Discovery: /llms.txt, /llms-full.txt, /openapi.json, /.well-known/mcp/tools.json, /.well-known/agent-commerce.json"
+  ]
+}

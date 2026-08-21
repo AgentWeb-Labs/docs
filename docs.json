@@ -1,0 +1,82 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "AgentWeb",
+  "theme": "luma",
+  "logo": {
+    "light": "https://media.brand.dev/9adaa2e3-7019-4bff-978a-78fdf9964fae.svg",
+    "dark": "https://media.brand.dev/9adaa2e3-7019-4bff-978a-78fdf9964fae.svg"
+  },
+  "favicon": "https://media.brand.dev/86d85d4d-1e06-465c-b44f-59ea625ca389.png",
+  "colors": {
+    "primary": "#0c0c14",
+    "light": "#838486",
+    "dark": "#ecedee"
+  },
+  "font": {
+    "headings": {
+      "family": "Geist"
+    },
+    "body": {
+      "family": "Geist Mono"
+    }
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get started free",
+      "href": "https://www.agentweb.us/signup"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "how-it-works"
+            ]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/action-maps",
+              "concepts/authentication",
+              "concepts/payments",
+              "concepts/verification"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/connecting-agents",
+              "guides/target-site-connections",
+              "guides/agent-payments",
+              "guides/install-agentweb"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/mcp-tools",
+              "reference/api",
+              "reference/webhooks",
+              "reference/discovery-urls"
+            ]
+          },
+          {
+            "group": "Plans & Support",
+            "pages": [
+              "pricing",
+              "security",
+              "faq"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,126 @@
+---
+title: "Authentication: API Keys and Target-Site Connections"
+sidebarTitle: "Authentication"
+description: "AgentWeb authentication covers two distinct concepts: proving which account is calling, and connecting a workflow to a specific external site account."
+---
+
+AgentWeb authentication involves two separate concepts that serve different purposes. The first is your **AgentWeb account auth** — it proves which AgentWeb account is making the call. The second is a **target-site connection** — it gives an approved workflow access to a specific external account, such as a retailer or service provider. Neither one grants blanket approval for every action.
+
+## Public access
+
+You can use `read_page` and `discover` without any API key. These tools retrieve accessible page content and surface available maps, but they do not execute actions or touch account state. Listing mapped actions and executing a workflow both require authentication.
+
+## AgentWeb account: preferred claim-link flow
+
+The claim-link flow lets a user review the Terms and Privacy Policy, sign in once through a hosted page, and return an `aw_` API key to your agent — without exposing any intermediate credentials in the conversation.
+
+<Steps>
+  <Step title="Show Terms and Privacy Policy">
+    Present the user with links to the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy) before creating any account.
+  </Step>
+  <Step title="Start the claim-link flow">
+    Call `agentweb_start_claim_link_signup`. The response includes a `verification_uri_complete` and a `deviceCode`.
+  </Step>
+  <Step title="Show only the verification link">
+    Display `verification_uri_complete` to the user. Do not expose `deviceCode`, intermediate tokens, or any other response fields.
+  </Step>
+  <Step title="Poll for completion">
+    Call `agentweb_poll_claim_link_signup` with the `deviceCode` while the user signs in. Continue polling until the response returns a final state.
+  </Step>
+  <Step title="Store the key and reconnect">
+    Store the returned API key securely, then reconnect to the MCP server with the `Authorization` header. Send the `welcome_message` from the response in the original conversation thread.
+
+    ```bash
+    Authorization: Bearer aw_<key>
+    ```
+  </Step>
+</Steps>
+
+## Email-code fallback
+
+If the claim-link flow is not available, use the email-code tools as a fallback:
+
+1. Call `agentweb_start_api_key_signup` with the user's email address.
+2. Ask the user to check their inbox for a verification code.
+3. Call `agentweb_complete_api_key_signup` with the code to receive the API key.
+
+Do not create an account from an email address alone without completing verification.
+
+## Raw HTTP fallback
+
+If you are integrating directly over HTTP without an MCP client, use the device-code grant:
+
+```bash
+# Step 1 — start device authorization
+POST https://mcp.agentweb.us/agent/identity
+
+# Step 2 — exchange device code for token
+POST https://mcp.agentweb.us/oauth2/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=urn:ietf:params:oauth:grant-type:device_code&device_code=<code>
+```
+
+## Connecting a target-site account
+
+Some actions require the user's account on the target site — for example, placing an order requires a connected retailer account. The connection flow is separate from AgentWeb account auth.
+
+<Steps>
+  <Step title="Check the action requirements">
+    Review the action's `account_requirements` field from `list_actions` to confirm whether an external connection is needed.
+  </Step>
+  <Step title="Start the connection">
+    Call `agentweb_start_connection` and show the returned `connect_url` to the user.
+  </Step>
+  <Step title="Poll until connected">
+    Call `agentweb_poll_connection` until it returns `connected: true`. Stop if the connection expires, is refused, or attaches to the wrong account.
+  </Step>
+</Steps>
+
+For cookie-backed providers, call `agentweb_auth_status` or `agentweb_connection_status` first to check whether a connection already exists before starting a new one.
+
+## Delegated payment authority
+
+When an action involves a payment, you need an explicit payment authority artifact — not just a valid API key. The authority defines the principal, the allowed scope, the amount limit, currency, expiry, and a revocation URL the user can exercise independently.
+
+```json
+{
+  "authority_id": "auth_123",
+  "principal": {
+    "type": "business",
+    "id": "example_co",
+    "agent_provider": "claude_code"
+  },
+  "scope": ["price.setup", "create.checkout_session"],
+  "amount_limit": { "value": 500000, "interval": "single_use" },
+  "currency": "usd",
+  "expires_at": "2026-05-08T00:00:00Z",
+  "revocation_url": "https://example.com/agent-authority/auth_123/revoke",
+  "receipt_required": true,
+  "verification_required": true,
+  "created_at": "2026-05-01T00:00:00Z"
+}
+```
+
+The user must approve this authority before any checkout call is made. Temporary, scoped authority is easier to trust than permanent access — it can expire naturally or be revoked by the user at any time without contacting support.
+
+## Checkout sessions: agent vs. web
+
+Two separate paths exist for creating a Dodo checkout session, and they are not interchangeable:
+
+- **`agentweb_create_checkout_session` MCP tool** — for agents calling with an `aw_` API key. Returns a handoff URL that signs the customer into Dodo-hosted checkout for the selected plan.
+- **`POST /api/billing/create-checkout-session`** — for the customer's own signed-in web session only. This endpoint is gated by Origin, a session bearer, and an Idempotency-Key. Requests authenticated with an `aw_` key are rejected.
+
+From an agent, always use the MCP tool. Opening the returned handoff URL in the customer's browser is correct — checkout completion on that page is **not** proof of entitlement until the Dodo webhook verifies the transaction.
+
+## Authority is separate from access
+
+A valid API key, or a connected browser session, shows only that access exists. It does not prove that the user approved this specific action, recipient, amount, time, or target account. Consequential actions must carry explicit scope and approval. Surface the relevant inputs and obtain approval before executing any irreversible or paid workflow.
+
+<Warning>
+  Never send passwords, session cookies, raw card numbers, or unrestricted third-party keys through chat or as action parameters. Keep AgentWeb API keys out of source control, analytics, screenshots, and public output. Revoke or rotate credentials immediately if a key or connection may have been exposed.
+</Warning>
+
+## When to use AgentWeb auth
+
+Use AgentWeb auth when your agent needs delegated access to an approved Action Map, scoped checkout creation, verification artifacts, or repeated authenticated workflow execution. Do not use it for one-off scraping, unrestricted account access, raw payment-provider operations, or browser automation with no reusable workflow map.

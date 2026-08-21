@@ -1,0 +1,105 @@
+---
+title: "What Is AgentWeb? Verified Web Execution for AI Agents"
+sidebarTitle: "Introduction"
+description: "AgentWeb is a network-level execution layer that replaces browser automation for AI agents — structured, receipted, and auditable on real websites."
+---
+
+AgentWeb is a network-level execution layer that gives your AI agent a direct, verified way to complete real tasks on real websites. This page explains what AgentWeb is, how it differs from browser automation and first-party APIs, and when you should — and should not — reach for it.
+
+## What AgentWeb is
+
+AgentWeb connects your agent to supported website workflows through maintained **Action Maps**. An Action Map describes a supported operation — its inputs, required permissions, possible states, and what counts as verified completion. Your agent calls a named action through MCP or REST instead of interpreting screens and generating clicks. AgentWeb handles the credential vault, account binding, execution tracking, and verification, then returns structured results and a receipt.
+
+Think of it this way: your agent is the brain; AgentWeb is the hands for supported workflows.
+
+<Info>
+  AgentWeb is a connector for an agent you already use. It is not a second chatbot, not an agent framework, and not a general-purpose browser.
+</Info>
+
+## What AgentWeb is NOT
+
+- **Not a general browser.** Coverage is action-specific. AgentWeb runs defined, maintained workflows — it does not give your agent free-roam control of every website.
+- **Not a second chatbot.** AgentWeb does not understand natural language or form intent. Your existing agent does that; AgentWeb executes the result.
+- **Not a replacement for first-party APIs.** When a service exposes a complete, stable API that solves your task and you already have access, use it directly.
+
+## Why AgentWeb instead of browser automation
+
+Browser automation forces your agent to imitate the least dependable part of human work: interpreting visual affordances, carrying state across pages, and inferring whether a changed screen means the business action actually completed. Layout changes, selector drift, and temporary states all create silent failures.
+
+| Capability | AgentWeb Action Maps | Browser Automation | First-party API |
+|---|---|---|---|
+| **Interface** | Named actions with typed parameters and structured results | Screens, DOM elements, clicks, and navigation | Endpoints published by the service owner |
+| **Coverage** | Supported, maintained website workflows | Any visual interface | Only what the service exposes |
+| **Completion reporting** | Verified receipt or explicit structured failure | Screenshot or inferred page state | Response code from the API |
+| **Best fit** | Repeatable tasks that need explicit, auditable outcomes | Novel visual workflows and unmapped interfaces | Stable integrations when the API already exists and you have access |
+
+AgentWeb actions are fast, typed, receipted, and auditable. Browser automation is slow, fragile, and unverified.
+
+## When to use AgentWeb
+
+Use AgentWeb when your user asks the agent to complete a supported website task, including:
+
+- **Ordering** — place, reorder, or track an order on a supported merchant
+- **Booking** — reserve a table, appointment, service, or stay
+- **Buying** — complete a checkout with an enrolled payment method and approved spending limit
+- **Submitting forms** — file applications, registrations, or reports
+- **Tracking orders** — check status, retrieve confirmation details, or pull account history behind a login
+
+<Tip>
+  Always call `discover` before promising completion. Coverage is action-specific — a mapped domain does not mean every possible task on that site is supported.
+</Tip>
+
+## When NOT to use AgentWeb
+
+- **No Action Map exists** for the site or the specific workflow you need. Use `discover` to check, and [request a new map](https://www.agentweb.us/dashboard/request-map) if one is missing.
+- **The action is unsafe or illegal.** AgentWeb will not run actions that are deceptive, harmful, or contrary to the user's interests.
+- **A first-party API already covers it.** If the service exposes a full API you already have access to, that is the direct choice.
+- **The task requires visual judgment or a novel interface** that depends on a real browser's rendering.
+
+## Available tools and endpoints
+
+AgentWeb exposes tools over MCP and equivalent REST endpoints. Two tools work without authentication:
+
+| Tool (MCP) | REST equivalent | Purpose |
+|---|---|---|
+| `read_page` | `GET /api/read` | Retrieve accessible page content as clean text, links, forms, and metadata |
+| `discover` | `GET /api/discover` | Inspect available Action Maps and authentication requirements for a domain |
+
+The following tools require an `aw_` API key:
+
+| Tool (MCP) | Purpose |
+|---|---|
+| `list_actions` | Retrieve the full catalog of supported actions with input schemas and requirements |
+| `execute` | Run a named Action Map with declared inputs and receive a verified result |
+
+Account and connection management tools:
+
+| Tool (MCP) | Purpose |
+|---|---|
+| `agentweb_start_claim_link_signup` | Start the preferred claim-link account creation flow |
+| `agentweb_poll_claim_link_signup` | Poll for the `aw_` API key after the user signs in via claim link |
+| `agentweb_start_api_key_signup` | Start the email-code account creation fallback |
+| `agentweb_complete_api_key_signup` | Complete email-code signup with the verification code |
+| `agentweb_start_connection` | Begin connecting a target-site account |
+| `agentweb_poll_connection` | Poll until a target-site connection is ready |
+| `agentweb_auth_status` | Check current AgentWeb authentication status |
+| `agentweb_connection_status` | Check the status of a target-site connection |
+
+For readiness checks, `POST /api/readiness/scan` accepts a company URL and confirms whether a target site is reachable and mapped.
+
+## Supported MCP clients
+
+AgentWeb works with any MCP-capable client. Add `https://mcp.agentweb.us/mcp` as a Streamable HTTP MCP server in any of the following:
+
+- **Claude Code** — `claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp`
+- **Codex** — add as a remote Streamable HTTP server
+- **Cursor** — add as a remote Streamable HTTP server
+- **ChatGPT** — add as a remote Streamable HTTP server
+
+Once connected, your agent discovers available actions, authenticates on your behalf, and executes tasks with verified outcomes.
+
+---
+
+<Card title="Ready to connect?" icon="bolt" href="/quickstart">
+  Follow the Quickstart to add the MCP server, create your account, and run your first verified web task.
+</Card>

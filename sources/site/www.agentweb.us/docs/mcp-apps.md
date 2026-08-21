@@ -1,0 +1,45 @@
+# Source: https://www.agentweb.us/docs/mcp-apps
+
+# AgentWeb MCP server and tool definitions
+
+AgentWeb exposes website reading, action discovery, account setup, target-site connection, and mapped execution through a remote Streamable HTTP MCP server.
+
+## Server and public metadata
+
+- MCP endpoint: [https://mcp.agentweb.us/mcp](https://mcp.agentweb.us/mcp)
+- Tool manifest: [/.well-known/mcp/tools.json](https://www.agentweb.us/.well-known/mcp/tools.json)
+- Server card: [/.well-known/mcp/server-card.json](https://www.agentweb.us/.well-known/mcp/server-card.json)
+- OpenAPI: [/openapi.json](https://www.agentweb.us/openapi.json)
+- Full agent reference: [/llms-full.txt](https://www.agentweb.us/llms-full.txt)
+
+## Core execution tools
+
+- `read_page`: retrieve accessible page content as structured text and metadata.
+- `discover`: inspect AgentWeb coverage and entry points for a domain.
+- `list_actions`: list mapped actions after AgentWeb authentication.
+- `execute`: run a selected Action Map with declared inputs and return structured status or verification.
+
+## Account and connection tools
+
+- `agentweb_start_claim_link_signup` and `agentweb_poll_claim_link_signup`: preferred one-link AgentWeb account flow.
+- `agentweb_start_api_key_signup` and `agentweb_complete_api_key_signup`: email-code fallback.
+- `agentweb_start_connection` and `agentweb_poll_connection`: connect a target-site account when required.
+- `agentweb_auth_status` and `agentweb_connection_status`: inspect current AgentWeb and target-site state.
+
+## Installation and billing flow
+
+1. `agentweb_scan_business`: inspect a company URL for agent readiness.
+2. `agentweb_install_agentweb`: return an Agent Tool install plan, PR files, pricing package, Dodo payment authority requirements, and verification checklist.
+3. `agentweb_price_setup`: return setup package and payment requirements.
+4. `agentweb_create_checkout_session`: create Dodo hosted checkout for Pro or Max account plans.
+5. `agentweb_verify_install`: verify deployed discovery surfaces and return proof.
+
+## Action execution flow
+
+1. Read or discover anonymously.
+2. Use the claim-link flow and reconnect with the returned `aw_` key.
+3. List actions and select one supported contract.
+4. Connect the required target-site account, if any.
+5. Confirm consequential inputs, execute once, and report the returned state.
+
+The manifest is the current machine-readable source for tool names and authentication requirements. Integrations should inspect it rather than hard-coding an assumed catalog.

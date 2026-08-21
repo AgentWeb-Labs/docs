@@ -1,0 +1,170 @@
+---
+title: "AgentWeb REST API: Full Endpoint and Auth Reference"
+sidebarTitle: "REST API"
+description: "Reference for AgentWeb REST endpoints, API key authentication, runtime origins, and HTTP fallbacks for public discovery and agent execution."
+---
+
+AgentWeb exposes REST endpoints alongside the MCP server. Public discovery and readiness scanning require no authentication. Execution, billing, and account-management endpoints require an `aw_` API key passed as a Bearer token.
+
+## Runtime origins
+
+| Name | URL |
+|------|-----|
+| Public site | https://www.agentweb.us |
+| MCP runtime | https://mcp.agentweb.us/mcp |
+| MCP health | https://mcp.agentweb.us/health |
+| Live MCP tools | https://mcp.agentweb.us/.well-known/mcp/tools.json |
+
+## Authentication
+
+Authenticated requests use a scoped `aw_` API key in the `Authorization` header:
+
+```http
+Authorization: Bearer aw_<key>
+```
+
+Obtain a key through the `agentweb_start_claim_link_signup` / `agentweb_poll_claim_link_signup` MCP tool flow. See the [MCP Tools reference](/reference/mcp-tools) for step-by-step details.
+
+**Public endpoints (no auth required):**
+- `POST /api/readiness/scan`
+- `GET https://mcp.agentweb.us/api/read`
+- `GET https://mcp.agentweb.us/api/discover`
+
+**Authenticated endpoints:** billing, execution, and account-management operations require a valid `aw_` key.
+
+OAuth metadata for compatible token flows is available at `/.well-known/oauth-protected-resource`.
+
+## Endpoints
+
+<Accordion title="POST /api/readiness/scan — Audit a business URL">
+  **Auth required:** None
+
+  **Purpose:** Audits whether a business URL is discoverable, understandable, integratable, and usable by AI agents. Use this endpoint before committing to a full installation.
+
+  **Request body:**
+
+  <ParamField body="url" type="string" required>
+    The business URL to audit.
+  </ParamField>
+
+  ```json
+  {
+    "url": "https://example.com"
+  }
+  ```
+
+  **Returns:**
+
+  <ResponseField name="discoverability_score" type="number">
+    A numeric score representing how easily agents can discover and understand the site.
+  </ResponseField>
+
+  <ResponseField name="action_candidates" type="array">
+    Potential actions AgentWeb could map for this domain.
+  </ResponseField>
+
+  <ResponseField name="auth_gaps" type="array">
+    Authentication surfaces that are missing or agent-incompatible.
+  </ResponseField>
+
+  <ResponseField name="payment_gaps" type="array">
+    Payment and commerce surfaces that are missing or agent-incompatible.
+  </ResponseField>
+
+  <ResponseField name="verification_gaps" type="array">
+    Verification and receipt surfaces that are missing or agent-incompatible.
+  </ResponseField>
+</Accordion>
+
+<Accordion title="GET https://mcp.agentweb.us/api/read — Public page reading helper">
+  **Auth required:** None
+
+  **Purpose:** Retrieves accessible content from any public URL as structured text, links, and metadata. Equivalent to the `read_page` MCP tool via HTTP.
+
+  **Query parameters:**
+
+  <ParamField query="url" type="string" required>
+    The fully-qualified URL of the page to read.
+  </ParamField>
+
+  **Returns:** Structured page content including visible text, navigation links, form fields, and metadata.
+</Accordion>
+
+<Accordion title="GET https://mcp.agentweb.us/api/discover — Domain workflow discovery helper">
+  **Auth required:** None
+
+  **Purpose:** Discovers AgentWeb coverage, entry points, and action candidates for a domain. Equivalent to the `discover` MCP tool via HTTP.
+
+  **Query parameters:**
+
+  <ParamField query="url" type="string">
+    The page URL to inspect for coverage.
+  </ParamField>
+
+  <ParamField query="domain" type="string">
+    The domain to inspect. Use `url` or `domain` — both are accepted.
+  </ParamField>
+
+  **Returns:** AgentWeb coverage status, discovered entry points, and available action candidates.
+</Accordion>
+
+<Accordion title="POST /api/billing/create-checkout-session — Create a Dodo checkout">
+  **Auth required:** Authenticated customer web session only
+
+  **Purpose:** Creates a Dodo hosted checkout from a server-validated catalog SKU. This endpoint is called by the customer's signed-in web session, not by an `aw_` API key.
+
+  <Warning>
+    This endpoint rejects requests authorized with an `aw_` key. From an agent, call the `agentweb_create_checkout_session` MCP tool instead — it returns a handoff URL that opens the customer's browser into Dodo hosted checkout.
+  </Warning>
+</Accordion>
+
+<Accordion title="POST /api/billing/webhook — Dodo payment fulfillment receiver">
+  **Auth required:** Dodo signature verification (internal)
+
+  **Purpose:** Receives Dodo-signed payment events and applies credits to the AgentWeb account after signature verification passes.
+
+  **Verification headers checked against the raw request body:**
+
+  <ParamField header="webhook-id" type="string" required>
+    Unique identifier for this webhook delivery.
+  </ParamField>
+
+  <ParamField header="webhook-signature" type="string" required>
+    HMAC signature used to verify the payload.
+  </ParamField>
+
+  <ParamField header="webhook-timestamp" type="string" required>
+    Timestamp of the webhook event used to prevent replay attacks.
+  </ParamField>
+
+  <Warning>
+    External agents must NOT call this endpoint directly. Credits are only granted after this internal signature verification completes.
+  </Warning>
+</Accordion>
+
+<Accordion title="POST https://mcp.agentweb.us/mcp — MCP Streamable HTTP transport">
+  **Auth required:** Optional — required only for authenticated tools
+
+  **Purpose:** Accepts all MCP protocol messages over the Streamable HTTP transport. Public tools (`read_page`, `discover`) work without auth. Execution and account tools require `Authorization: Bearer aw_<key>`.
+
+  ```http
+  POST https://mcp.agentweb.us/mcp
+  Authorization: Bearer aw_<key>
+  Content-Type: application/json
+  ```
+</Accordion>
+
+## Agent registration fallbacks
+
+If you cannot use the MCP tool flow, these raw HTTP endpoints support agent registration:
+
+| Step | Endpoint | Notes |
+|------|----------|-------|
+| Start device flow | `POST https://mcp.agentweb.us/agent/identity` | Returns `device_code` and `verification_uri_complete` |
+| Exchange for token | `POST https://mcp.agentweb.us/oauth2/token` | `grant_type=urn:ietf:params:oauth:grant-type:device_code` |
+| Email fallback (start) | `POST /api/register` | Sends a verification code to the supplied email |
+| Email fallback (complete) | `POST /api/verify` | Submits the verification code to receive an API key |
+
+<Note>
+  Email-only agent signup is not supported. The customer must sign in at least once to prove consent and email ownership.
+</Note>

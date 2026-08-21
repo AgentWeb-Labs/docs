@@ -1,0 +1,62 @@
+---
+title: "Install AgentWeb for Your Business or Repository"
+sidebarTitle: "Install for Business"
+description: "Tell your coding agent to install AgentWeb for your business or repo — it generates agent-readable metadata, action catalogs, and payment surfaces."
+---
+
+AgentWeb is an Agent Tool that makes your business discoverable, callable, payable, and verifiable by AI agents. You can tell Claude Code, Codex, Cursor, Goose, or any other coding agent: "install AgentWeb for this business" or "make this repo usable by agents." The agent scans your business, generates a tailored install plan, and opens pull requests with every artifact needed to surface your workflows to the agentic web.
+
+## When to use this
+
+<CardGroup cols={1}>
+  <Card title="Your business wants agent traffic" icon="globe">
+    Use AgentWeb when you want AI agents to discover, recommend, quote, book, buy, submit, or verify workflows against your business — without requiring each agent to scrape or guess at your site structure.
+  </Card>
+  <Card title="Your repo needs agent-readable surfaces" icon="code">
+    Use AgentWeb when a repo or monorepo needs agent-readable metadata, action catalogs, MCP and OpenAPI surfaces, payment authority definitions, and verification artifacts all generated and maintained in one install flow.
+  </Card>
+  <Card title="Your AI product needs an execution layer" icon="bolt">
+    Use AgentWeb when your AI product requires a specialist execution layer for authenticated workflows instead of brittle browser automation or one-off API glue code.
+  </Card>
+</CardGroup>
+
+## Install flow
+
+<Steps>
+  <Step title="Scan your business">
+    Your agent calls `agentweb_scan_business` with your company URL. The scan returns a readiness report covering discoverability, action candidates, auth gaps, payment gaps, and verification gaps — without touching any private data or executing any forms.
+  </Step>
+  <Step title="Generate the install plan">
+    Your agent calls `agentweb_install_agentweb`. This produces a repo-specific install plan that lists expected PR files, the recommended pricing package, payment authority requirements, and verification checks. Review the plan before proceeding.
+  </Step>
+  <Step title="Select a pricing package">
+    Your agent calls `agentweb_price_setup` to select the right setup package based on your usage, scope, and the action catalog the scan identified. The tool returns the package details and any payment authority requirements.
+  </Step>
+  <Step title="Approve and pay">
+    If the selected package involves a paid setup, your agent presents the full payment authority for your review — including domain, amount limit, currency, expiry, revocation URL, receipt requirement, and verification requirement. After you approve each field, your agent calls `agentweb_create_checkout_session` to create a scoped Dodo checkout session and hands you off to complete payment in your browser.
+  </Step>
+  <Step title="Credits granted">
+    AgentWeb grants setup credits only after a Dodo-signed webhook confirms payment. Your agent waits for webhook verification before proceeding — a checkout redirect is not sufficient.
+  </Step>
+  <Step title="Review and merge PRs">
+    AgentWeb or your coding agent opens pull requests against your repository with all agent-readiness surfaces. Review each PR, make any adjustments needed for your domain, and merge when satisfied.
+  </Step>
+  <Step title="Verify the install">
+    Your agent calls `agentweb_verify_install` against your live deployment. The tool checks that every discovery file and action surface is reachable and correctly formed, then returns a signed verification artifact you can store as proof.
+  </Step>
+</Steps>
+
+## What the PRs include
+
+Each install generates pull requests that add the following files to your repository:
+
+- **`/llms.txt` and `/llms-full.txt`** — Markdown links, when-to-use guidance, and action entry points formatted for language-model consumption.
+- **`/agents.json`, `/.well-known/agent.json`, `/.well-known/agent-card.json`** — Agent Tool category declarations, task definitions, and contact points for agent-to-agent discovery.
+- **`/openapi.json`, `/.well-known/openapi.json`, MCP manifests** — Fully documented callable workflow surfaces that any OpenAPI or MCP-compatible agent can read and invoke.
+- **`/.well-known/action-catalog.json`** — The complete action ruleset: allowed actions, disallowed actions, auth state, payment state, success proof format, failure classes, and rollback path.
+- **`/pricing.md`, payment authority schema references, MPP/x402 discovery metadata** — Machine-readable pricing and payment authority definitions for agents that need to quote or initiate purchases.
+- **`/robots.txt`, `/sitemap.xml`, schema.org JSON-LD, contact and trust pages** — Foundational discoverability and crawler policy signals that help agents and search infrastructure find and trust your site.
+
+<Note>
+  The business owner must approve before AgentWeb proceeds with pricing, payment, repo access, or PR generation. AgentWeb does not accept raw card data, private prompts, or permanent repository authority at any stage of the install flow.
+</Note>

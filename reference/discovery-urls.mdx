@@ -1,0 +1,46 @@
+---
+title: "AgentWeb Discovery URLs: Well-Known Endpoint Index"
+sidebarTitle: "Discovery URLs"
+description: "All AgentWeb well-known URLs and discovery files that AI agents should read instead of hardcoding assumptions about the tool catalog."
+---
+
+AgentWeb publishes machine-readable discovery files at standard well-known URLs. AI agents and integrations should read these files rather than hardcoding assumptions about the tool catalog, auth requirements, or payment protocols. When in doubt, start with the live MCP tool manifest.
+
+## Recommended discovery order
+
+Follow this sequence when onboarding a new integration or when your agent first encounters AgentWeb:
+
+1. Read `/llms.txt` and `/llms-full.txt` for a human- and agent-readable summary of what AgentWeb does.
+2. Read `/openapi.json` or `/.well-known/openapi.json` for the full OpenAPI 3.1 contract.
+3. Read `/.well-known/mcp/tools.json` and the live MCP tool manifest at `https://mcp.agentweb.us/.well-known/mcp/tools.json`.
+4. Read `/.well-known/mcp/apps.json` and the [MCP Tools reference](/reference/mcp-tools) for setup, auth, payment authority, and verification surfaces.
+5. For commerce workflows, read `/.well-known/agent-commerce.json`.
+6. For delegated auth examples, read the [Authentication guide](/guides/connecting-agents).
+7. For ACP/UCP bridge support, see [Payments concepts](/concepts/payments).
+
+## Discovery files
+
+| File | URL | Description |
+|------|-----|-------------|
+| LLM summary | [https://www.agentweb.us/llms.txt](https://www.agentweb.us/llms.txt) | Human and agent-readable summary of AgentWeb |
+| LLM full | [https://www.agentweb.us/llms-full.txt](https://www.agentweb.us/llms-full.txt) | Full agent reference — complete tool and API details |
+| OpenAPI | [https://www.agentweb.us/openapi.json](https://www.agentweb.us/openapi.json) | OpenAPI 3.1 contract for all REST endpoints |
+| OpenAPI (well-known) | [https://www.agentweb.us/.well-known/openapi.json](https://www.agentweb.us/.well-known/openapi.json) | Well-known mirror of the OpenAPI contract |
+| MCP tools | [https://www.agentweb.us/.well-known/mcp/tools.json](https://www.agentweb.us/.well-known/mcp/tools.json) | Public MCP tool manifest — names, inputs, auth requirements |
+| MCP apps | [https://www.agentweb.us/.well-known/mcp/apps.json](https://www.agentweb.us/.well-known/mcp/apps.json) | MCP Apps resources for setup, auth, payment, and verification |
+| MCP server card | [https://www.agentweb.us/.well-known/mcp/server-card.json](https://www.agentweb.us/.well-known/mcp/server-card.json) | Public MCP server card |
+| Agent card (A2A) | [https://www.agentweb.us/.well-known/agent-card.json](https://www.agentweb.us/.well-known/agent-card.json) | A2A Agent Card for agent-to-agent discovery |
+| Agents index | [https://www.agentweb.us/agents.json](https://www.agentweb.us/agents.json) | Agent Tool index |
+| Agent index (well-known) | [https://www.agentweb.us/.well-known/agent.json](https://www.agentweb.us/.well-known/agent.json) | Well-known agent index |
+| Action catalog | [https://www.agentweb.us/.well-known/action-catalog.json](https://www.agentweb.us/.well-known/action-catalog.json) | Allowed and disallowed actions, auth requirements, payment and verification signals |
+| Agent commerce | [https://www.agentweb.us/.well-known/agent-commerce.json](https://www.agentweb.us/.well-known/agent-commerce.json) | Delegated payment and agent commerce metadata |
+| Payment protocols | [https://www.agentweb.us/.well-known/payment-protocols.json](https://www.agentweb.us/.well-known/payment-protocols.json) | Dodo, ACP, UCP, OAuth, and payment protocol signals |
+| MPP profile | [https://www.agentweb.us/.well-known/mpp.json](https://www.agentweb.us/.well-known/mpp.json) | Machine payment profile |
+| x402 profile | [https://www.agentweb.us/.well-known/x402.json](https://www.agentweb.us/.well-known/x402.json) | x402 payment profile |
+| Payment authority schema | [https://www.agentweb.us/.well-known/payment-authority.schema.json](https://www.agentweb.us/.well-known/payment-authority.schema.json) | JSON schema for the payment authority object |
+| Payment artifact schema | [https://www.agentweb.us/.well-known/payment-artifact.schema.json](https://www.agentweb.us/.well-known/payment-artifact.schema.json) | JSON schema for receipt and verification artifacts |
+| OAuth resource | [https://www.agentweb.us/.well-known/oauth-protected-resource](https://www.agentweb.us/.well-known/oauth-protected-resource) | OAuth protected resource metadata for token flows |
+
+<Tip>
+  The live MCP tool manifest at `/.well-known/mcp/tools.json` is the authoritative source for current tool names and authentication requirements. Always read it at runtime rather than relying on a cached or hardcoded catalog.
+</Tip>

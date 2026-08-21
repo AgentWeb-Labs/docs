@@ -1,0 +1,77 @@
+---
+title: "Action Maps: Structured Website Workflows for Agents"
+sidebarTitle: "Action Maps"
+description: "Action Maps are maintained descriptions of supported website workflows with declared inputs, account requirements, outcomes, and verification behavior."
+---
+
+An Action Map is a maintained, named description of a supported workflow on a real website. It declares the inputs the workflow needs, the account state it requires, the possible outcomes it can return, and how verification and receipts work. When your agent calls an Action Map, it is expressing an intent — not driving a browser or parsing a visual interface.
+
+## Why Action Maps exist
+
+Websites change their layouts, rename buttons, and reorganize pages. A workflow tied to a CSS selector or button label can break even when the underlying task remains identical. Action Maps decouple your agent from the visual interface. AgentWeb maintains the maps as sites evolve, so your agent keeps working with the same named action and typed parameters while the underlying execution adapts.
+
+The result is a narrow, stable contract: the agent calls the action by intent, and AgentWeb handles the current implementation.
+
+## Coverage is action-specific
+
+A domain appearing in the AgentWeb library does not mean every possible workflow on that site is supported. Coverage is mapped per action. One site might have a mapped checkout and a mapped order-status lookup, but no map for account settings or returns.
+
+Always call `discover` or `list_actions` at runtime to confirm which actions are available for the domain and account state you need before promising completion to a user.
+
+<Note>
+  Coverage is continually maintained as sites change. Check discovery at runtime rather than relying on a cached list of mapped actions.
+</Note>
+
+## Key properties of an Action Map
+
+Every Action Map exposes a consistent set of properties you can inspect through `list_actions` or the public library.
+
+| Property | What it describes |
+|---|---|
+| **Name** | A stable identifier for the workflow (e.g. `checkout`, `order_status`) |
+| **Required inputs** | Typed parameters the action needs to run |
+| **Account requirements** | Whether a target-site connection is required and which account type |
+| **Auth requirement** | Whether an AgentWeb API key is required |
+| **Possible outcomes** | The structured result types the action can return |
+| **Verification / receipt behavior** | What evidence is returned on completion and how it is signed |
+| **Failure classes** | The categories of failure the action can return (e.g. expired connection, missing input, site-side error) |
+
+## How to discover available maps
+
+<Steps>
+  <Step title="Anonymous discovery">
+    Call the `discover` tool with a target domain. No API key is required. The response shows which mapped actions exist and what authentication each one needs.
+  </Step>
+  <Step title="Authenticated listing">
+    After connecting with an `aw_` key, call `list_actions` to see the full curated catalog for the domain along with required parameters and account state.
+  </Step>
+  <Step title="Browse the library">
+    Visit [agentweb.us/library](https://www.agentweb.us/library) to inspect mapped domains and actions before writing any code.
+  </Step>
+</Steps>
+
+## When a map is missing
+
+Not every site or workflow is mapped. When discovery returns no result for a needed action, you have three valid options:
+
+<CardGroup cols={3}>
+  <Card title="Read public content" icon="book-open">
+    Use `read_page` to retrieve accessible page content — text, links, forms, and metadata — without executing any action. This works without authentication and does not modify any state.
+  </Card>
+  <Card title="Request a map" icon="plus">
+    Submit a map request at [agentweb.us/dashboard/request-map](https://www.agentweb.us/dashboard/request-map). A new map is not guaranteed to be immediately available.
+  </Card>
+  <Card title="Stop and explain" icon="circle-stop">
+    Tell the user the action is not currently supported and describe what information you can retrieve instead. A clear gap is better than an uncertain result.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Do not substitute browser automation or unstructured DOM interaction for a failed or unmapped AgentWeb action. Bypassing the map removes the verification contract, typed parameters, and structured failure behavior that make results trustworthy.
+</Warning>
+
+## Choosing the right approach
+
+Action Maps are the right tool when the user asks your agent to complete a supported, repeatable workflow — an order, a booking, a form submission, a checkout — and you need a machine-readable result you can act on. For novel visual tasks or sites without a map, browser-based approaches or reading public page content are the appropriate fallback.
+
+See the [internet task execution guide](https://www.agentweb.us/internet-task-execution) for a comparison of Action Maps, browser automation, first-party APIs, and page reading.

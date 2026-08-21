@@ -1,0 +1,134 @@
+---
+title: "How AgentWeb Works: From Request to Verified Receipt"
+sidebarTitle: "How It Works"
+description: "Follow an AgentWeb task through five stages — discovery, authority, execution, verification, and attribution — from user intent to verified receipt."
+---
+
+AgentWeb turns a one-sentence user request into a real, auditable outcome on a real website. This page walks through the five-stage pipeline that makes that possible, explains what each stage does, and traces a concrete example from start to finish.
+
+Every task follows this sequence:
+
+```text
+Discovery → Authority → Execution → Verification → Attribution
+```
+
+Each stage answers a distinct operational question. The separation means a missing permission looks like a permission problem — not an execution failure — and a visual confirmation screen is never mistaken for verified completion.
+
+## Stage 1: Discovery
+
+**Discovery finds the right Action Map for the request.**
+
+When your agent receives a task, it calls `discover` against the target domain (or `GET /api/discover` via REST). AgentWeb exposes machine-readable discovery surfaces — including [`/llms.txt`](https://www.agentweb.us/llms.txt), MCP tool descriptions, and the [OpenAPI contract](https://www.agentweb.us/openapi.json) — so your agent understands what the service can do without scraping marketing copy or guessing from navigation labels.
+
+Your agent can also use `read_page` (or `GET /api/read` via REST) to retrieve accessible page content as clean text, links, forms, and metadata — useful for inspecting a site before deciding which action to call.
+
+Discovery returns:
+
+- Which Action Maps exist for the domain
+- The input schema each action requires (fields, types, constraints)
+- The authentication requirements for the site and action
+- The verification contract — what counts as evidence of completion
+
+Collecting missing inputs at this stage avoids wasting an execution run on an incomplete request. If no Action Map exists for the requested domain or task, `discover` returns a clear gap so you can request a new map or choose an alternative approach.
+
+<Tip>
+  Always call `discover` before calling `list_actions` or `execute`. Never promise completion to the user until you have confirmed coverage.
+</Tip>
+
+## Stage 2: Authority
+
+**Authority checks who is asking and whether they are permitted to act.**
+
+Once the action is known, AgentWeb validates the principal and account before any execution begins. A connected account is never treated as public infrastructure — it is isolated to you and bound to the workflows you have approved.
+
+The authority check covers:
+
+- **Account binding** — is the required target-site account connected?
+- **Scopes** — does this action fall within the approved permission set?
+- **Approval** — for paid or irreversible actions, has the user explicitly approved?
+- **Expiry** — has the connection or approval expired?
+- **Budget** — does the requested amount fall within the configured spending limit?
+
+This stage produces specific, actionable failure messages rather than a generic error:
+
+- A missing connection returns a prompt to run the connection flow.
+- An expired permission returns a renewal instruction.
+- An amount above the approved limit returns a request for a new approval.
+
+Your agent can explain the exact blocker to the user instead of reporting that the website failed.
+
+<Warning>
+  Never place raw card numbers, passwords, or unrestricted credentials in a tool request. Payment authority is scoped, limited, and managed through the AgentWeb dashboard — not through the conversation.
+</Warning>
+
+## Stage 3: Execution
+
+**Execution runs the action as a tracked job with an observable state.**
+
+Real internet work is often longer than a single function call. A checkout may wait on a merchant response. A booking may require a background confirmation. A submission may trigger an external workflow. AgentWeb treats every execution as a job with an identity and state so nothing is left in an opaque, half-finished condition.
+
+Your agent receives progress updates, a completion signal, or a structured failure — never an open-ended wait. The implementation uses the safest available route for the mapped workflow: a complete first-party API when one exists, or an authenticated execution path otherwise. That complexity stays behind the Action Map so your agent does not need site-specific logic.
+
+The job identity also makes retries safe. A retry refers to the same execution record rather than creating a duplicate action.
+
+## Stage 4: Verification
+
+**Verification waits for real evidence before marking the task complete.**
+
+Execution ends only when the defined evidence exists. Depending on the action, that evidence may be:
+
+- A receipt from the merchant or service
+- A booking reference tied to the reservation system
+- A submitted record confirmed by the target system
+- A signed webhook or status from the system of record
+
+AgentWeb returns the verification artifact with identifiers and relevant fields so you and any downstream system can inspect it later.
+
+Ambiguous states remain explicit. A confirmation screen without a matching record stays in a **pending** or **unresolved** state. A failed verification is never rewritten as a successful task because the interface looked right. This discipline makes retries safer and prevents duplicate actions from running against an unclear state.
+
+<Note>
+  If your agent receives a pending or ambiguous verification state, wait for the next status update rather than assuming success or retrying immediately.
+</Note>
+
+## Stage 5: Attribution
+
+**Attribution creates a complete, auditable record of every run.**
+
+Every execution captures enough context to answer the operational questions that matter:
+
+- Who requested the action
+- Which agent delegated it
+- Which workflow and Action Map ran
+- Which account was used
+- What it cost
+- How it ended
+
+AgentWeb connects these facts to the job and the returned artifact. That record supports support investigations, usage history, billing, and reliability work. From your side the attribution is largely invisible — you ask for a task, approve the meaningful boundary, and receive the result. The structure underneath exists to make that simplicity honest.
+
+---
+
+## Concrete example: purchasing an approved service
+
+To see the pipeline in action, trace an agent asked to purchase a software subscription on a supported merchant.
+
+**Discovery** — The agent calls `discover` for the merchant domain. AgentWeb returns the matching Action Map, its required fields (merchant, plan identifier, account, amount ceiling, authority reference), and the verification contract (a receipt from the merchant's order system).
+
+**Authority** — AgentWeb validates the principal, confirms the target-site account is connected, checks that the requested amount is within the configured spending limit, and verifies the approval has not expired. The action has a valid authority reference, so it proceeds. If the amount had exceeded the limit, the workflow would pause and request a new approval from the user.
+
+**Execution** — AgentWeb creates an addressable job for the checkout. The job waits on the merchant's response. If the merchant takes additional time, your agent receives a progress update tied to the same job identity rather than an opaque timeout.
+
+**Verification** — AgentWeb checks the merchant's order system for a matching record, produces a receipt artifact, and marks the job complete. The agent receives the structured receipt with order identifiers and relevant fields.
+
+**Attribution** — Telemetry connects the completed job to your account, the agent session, the workflow, the pricing rule, and the final outcome. The run appears in your usage history and can be reviewed or disputed at any time.
+
+Your agent delivers a clean, explainable result — without ever needing to know which checkout path, redirect, or merchant API was involved.
+
+---
+
+## The operating principle
+
+Every AgentWeb execution is **explicit, attributable, recoverable, and verifiable** from beginning to end. The five-stage pipeline exists to make that standard possible at scale, across every supported site and action.
+
+- [Quickstart](/quickstart) — connect your agent and run your first task
+- [MCP Tools](/reference/mcp-tools) — browse available tools with full schemas
+- [API Reference](/reference/api) — integrate directly via REST

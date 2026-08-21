@@ -1,0 +1,89 @@
+---
+title: "AgentWeb FAQ: Connections, Payments, and Troubleshooting"
+sidebarTitle: "FAQ"
+description: "Common questions about AgentWeb — what it does, how connections work, payment safety, credit billing, and troubleshooting failed actions."
+---
+
+Common questions about AgentWeb — what it does, how connections work, payment safety, and troubleshooting. If you do not find your answer here, reach out to [support@agentweb.us](mailto:support@agentweb.us).
+
+## General
+
+<AccordionGroup>
+  <Accordion title="What is AgentWeb?">
+    AgentWeb is a network-level web action layer for AI agents. It gives agents structured, verified access to real websites to search, order, book, submit, and verify — returning typed results and a receipt for every action, instead of relying on browser automation.
+  </Accordion>
+
+  <Accordion title="Is AgentWeb an alternative to browser automation?">
+    Yes. AgentWeb replaces browser control and computer-use agents for supported web tasks. Where browser automation is slow, fragile, and unverified, AgentWeb actions are fast, typed, receipted, and auditable.
+  </Accordion>
+
+  <Accordion title="Which AI agents and clients work with AgentWeb?">
+    Any MCP-capable client works with AgentWeb, including Claude Code, Codex, Cursor, ChatGPT, Goose, and Windsurf. Add `https://mcp.agentweb.us/mcp` as a Streamable HTTP MCP server and your agent gains web actions immediately.
+  </Accordion>
+
+  <Accordion title="What sites and actions are supported?">
+    Check the public site library at [agentweb.us/library](https://www.agentweb.us/library) and use the `discover` tool at runtime to confirm coverage. Coverage is action-specific — a mapped domain does not mean every workflow on that site is supported. Confirm the specific action is available before promising completion.
+  </Accordion>
+</AccordionGroup>
+
+## Authentication & connections
+
+<AccordionGroup>
+  <Accordion title="How do I get an API key?">
+    Use the claim-link flow: your agent calls `agentweb_start_claim_link_signup`, which returns a verification link. You open the link, review the Terms and Privacy Policy, and sign in once. The agent then receives an `aw_` API key and reconnects automatically.
+  </Accordion>
+
+  <Accordion title="What is a target-site connection?">
+    Some actions require your account on the target website — for example, your Amazon login for order tracking. AgentWeb vaults this credential securely on your behalf. The agent never sees your password; it works with a scoped reference that is bound to your account.
+  </Accordion>
+
+  <Accordion title="Can I revoke a connection?">
+    Yes, from your dashboard at any time. After revocation, future jobs that reference the connection fail cleanly and return a specific recovery step so the agent knows exactly what to do next.
+  </Accordion>
+
+  <Accordion title="What's the difference between AgentWeb auth and target-site auth?">
+    Your AgentWeb API key (`aw_…`) proves which AgentWeb account is calling. Target-site auth connects your account on an external website so AgentWeb can act there on your behalf. Both are separate, scoped to approved workflows, and revocable independently.
+  </Accordion>
+</AccordionGroup>
+
+## Payments & credits
+
+<AccordionGroup>
+  <Accordion title="How does AgentWeb pricing work?">
+    One credit equals one executed action. Failed actions are automatically refunded — you are only billed for verified completions. Every new account starts with 100 free credits, and the exact credit cost is always shown before a run starts.
+  </Accordion>
+
+  <Accordion title="What's the difference between credits and purchases?">
+    Credits pay for execution — the work AgentWeb does to complete a task. Purchases charge your enrolled payment card (Pro and Max only) within the spending limits you set. The two are completely separate and never mix.
+  </Accordion>
+
+  <Accordion title="Can my agent buy things on my behalf?">
+    On Pro and Max, yes. You enroll your card once, set per-purchase and daily limits, and the agent mints a one-time virtual card per purchase. Merchants never see your real card number, and every payment returns a receipt.
+
+    On Free, agents cannot make purchases.
+  </Accordion>
+
+  <Accordion title="Are my payment details safe?">
+    Yes. Your real card number is never shown to the agent or to merchants. AgentWeb uses device-bound passkey enrollment and issues a new one-time virtual card for each transaction, so your underlying card stays private across all purchases.
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="The agent says a site is not mapped. What do I do?">
+    Use `read_page` to retrieve publicly accessible information from the site. To request support for a missing workflow, visit [agentweb.us/dashboard/request-map](https://www.agentweb.us/dashboard/request-map). Do not substitute browser automation for an unmapped AgentWeb action.
+  </Accordion>
+
+  <Accordion title="A connection expired during execution. What happens?">
+    The action fails cleanly with a structured error that points to the reconnection step. Call `agentweb_start_connection` to reconnect the target-site account, then retry the task.
+  </Accordion>
+
+  <Accordion title="How do I know an action truly completed?">
+    Look for the verification artifact in the response. A status of `completed` with an artifact confirms the action finished. If the status is `pending` or `failed`, the action did not complete — do not infer success from an accepted request alone.
+  </Accordion>
+
+  <Accordion title="What should I do if my API key is exposed?">
+    Revoke or rotate it immediately from your dashboard. Keep API keys out of source control, screenshots, analytics pipelines, and any public output. If you are unsure whether a key was exposed, rotate it and issue a new one to be safe.
+  </Accordion>
+</AccordionGroup>
