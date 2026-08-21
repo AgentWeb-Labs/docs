@@ -1,25 +1,30 @@
 ---
 title: "AgentWeb scopes and permissions"
 sidebarTitle: "Scopes"
-description: "Granular AgentWeb permission scopes for public scans, action maps, MCP tools, checkout creation, verification, and webhooks."
+description: "How AgentWeb permissions work: API-key authentication, per-tool auth requirements, and the payment authority scope vocabulary."
 ---
 
-Scopes are granular and task-specific. Public discovery scopes cannot create checkout sessions, execute private actions, read credentials, access account-gated data, or mutate third-party systems.
+AgentWeb permissions operate at two levels: what a caller can reach with an `aw_` API key, and what a delegated payment authority artifact allows an agent to request.
 
-- `scan.public`: run public readiness scans without private account access.
-- `read.public`: read public pages and metadata.
-- `actions.list`: list mapped actions available to the caller.
-- `actions.execute`: execute approved mapped actions.
-- `setup.create`: request an Agent Map setup session.
-- `payment.quote`: read setup and usage pricing.
-- `create.checkout_session`: create Dodo hosted checkout only with scoped payment authority.
-- `verification.read`: read receipts, status proof, or signed setup artifacts.
+## API key and tool-level auth
 
-## Scope groups
+Every live tool, including `read_page`, `discover`, `list_actions`, and `execute`, requires an AgentWeb `aw_` API key. Only the signup tools and `agentweb_auth_status` work unauthenticated. The [MCP tool manifest](https://www.agentweb.us/.well-known/mcp/tools.json) declares each tool's `auth` requirement and is the machine-readable source of truth.
 
-- Public discovery: `scan.public`, `read.public`.
-- Action map setup: `setup.create`, `payment.quote`.
-- Approved execution: `actions.list`, `actions.execute`, `verification.read`.
-- Delegated payment: `create.checkout_session` only, with amount limit, currency, expiry, revocation URL, receipt requirement, and verification requirement.
+The public readiness scan (`POST /api/readiness/scan`) and the discovery metadata files require no credentials, and do not execute forms or payments.
 
-Credentials, private payloads, raw prompts, card data, and unrestricted API keys are outside the public scan scope.
+## Payment authority scopes
+
+Delegated payment authority artifacts carry a `scope` array. The valid values are defined by the [payment authority schema](https://www.agentweb.us/.well-known/payment-authority.schema.json):
+
+- `scan.public_site`: run a public readiness scan of a site.
+- `price.setup`: read setup and usage pricing.
+- `create.setup_session`: request an Agent Map setup session.
+- `generate.action_map_draft`: generate a draft action map.
+- `verify.install`: verify deployed agent-facing surfaces.
+- `execute.approved_action`: execute approved mapped actions.
+
+Every authority artifact also requires an amount limit, currency, expiry, revocation URL, receipt requirement, and verification requirement.
+
+## Billing boundary
+
+API keys held by an agent connection cannot start AgentWeb billing. Checkout runs through `agentweb_create_checkout_session`, which hands the signed-in customer a Dodo hosted checkout link. Credentials, private payloads, raw prompts, card data, and unrestricted API keys are never part of any scope.

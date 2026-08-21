@@ -8,7 +8,7 @@ AgentWeb authentication proves which AgentWeb account is calling. A target-site 
 
 ## Public access
 
-`read_page` and `discover` can be used without an AgentWeb API key. Listing mapped actions and executing an action require authentication according to the current MCP tool manifest.
+Every live tool, including `read_page` and `discover`, requires an AgentWeb API key. Only the signup tools (`agentweb_start_claim_link_signup`, `agentweb_poll_claim_link_signup`, `agentweb_start_api_key_signup`, `agentweb_complete_api_key_signup`) and `agentweb_auth_status` work without one. The public readiness scan (`POST /api/readiness/scan`) and the discovery metadata files also require no credentials.
 
 ## Preferred AgentWeb account flow
 
@@ -55,7 +55,7 @@ A valid API key or connected browser session shows that access exists. It does n
     "id": "example_co",
     "agent_provider": "claude_code"
   },
-  "scope": ["price.setup", "create.checkout_session"],
+  "scope": ["price.setup", "create.setup_session"],
   "amount_limit": { "value": 500000, "interval": "single_use" },
   "currency": "usd",
   "expires_at": "2026-05-08T00:00:00Z",
@@ -74,7 +74,7 @@ Connector API keys cannot initiate AgentWeb billing. `POST /api/billing/create-c
 
 - Public scans require no credentials and do not execute forms or payments.
 - Private execution requires an approved Agent Map and scoped credentials.
-- Paid account checkout is available for Pro and Max. Enterprise is custom through [support@agentweb.us](mailto:support@agentweb.us).
+- Paid account checkout is available for the Starter plan. Enterprise is sales-led: book a demo at [https://agentweb.us/demo](https://agentweb.us/demo).
 - Checkout success does not grant credits until Dodo webhook verification completes.
 
 ## Credential boundaries

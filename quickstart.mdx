@@ -4,7 +4,7 @@ sidebarTitle: "Quickstart"
 description: "Connect AgentWeb through MCP, discover supported website actions, authenticate safely, execute a mapped action, and verify the result."
 ---
 
-Connect AgentWeb to the AI agent you already use, check whether the target website and action are supported, then authenticate only when you are ready to list or execute an action.
+Connect AgentWeb to the AI agent you already use, authenticate, check whether the target website and action are supported, then call `execute` to run a mapped action. Executing mapped actions through `execute` (MCP) or `POST /api/execute` (REST) is the core capability.
 
 ## 1. Add the MCP server
 
@@ -16,11 +16,7 @@ claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp
 
 Other MCP clients can add the same URL as a remote Streamable HTTP server.
 
-## 2. Read and discover without an account
-
-Use `read_page` to retrieve accessible page content or `discover` to inspect AgentWeb coverage for a domain. Do not assume that a mapped domain supports every action on that website.
-
-## 3. Connect an AgentWeb account
+## 2. Connect an AgentWeb account
 
 Before account creation, show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy). Prefer `agentweb_start_claim_link_signup`, show only the returned `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the human signs in. The completed poll returns the API key once.
 
@@ -30,7 +26,9 @@ Email-code signup through `agentweb_start_api_key_signup` and `agentweb_complete
 Authorization: Bearer aw_<key>
 ```
 
-## 4. Select and prepare the action
+## 3. Read, discover, and select the action
+
+Every live tool, including `read_page` and `discover`, requires the `aw_` API key. Use `read_page` to retrieve accessible page content or `discover` to inspect AgentWeb coverage for a domain. Do not assume that a mapped domain supports every action on that website.
 
 1. Discover AgentWeb with [/llms.txt](https://www.agentweb.us/llms.txt), [A2A Agent Card](https://www.agentweb.us/.well-known/agent-card.json), [OpenAPI](https://www.agentweb.us/openapi.json), and [MCP tools](https://www.agentweb.us/.well-known/mcp/tools.json).
 2. If the user has no `aw_` key, show them the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy), then call `agentweb_start_claim_link_signup`, show only `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the user signs in. The poll result returns the key, `welcome_message`, and setup command; send `welcome_message` in the original conversation. Raw HTTP fallback: `POST https://mcp.agentweb.us/agent/identity` then `POST https://mcp.agentweb.us/oauth2/token`. Email-only agent signup is not supported. Email-code fallback: `agentweb_start_api_key_signup` then `agentweb_complete_api_key_signup`. A2A agents call `tasks/create` with `task_type=start_api_key_signup`, then `task_type=complete_api_key_signup`. Raw email-code clients can use `POST https://mcp.agentweb.us/api/register` and `POST https://mcp.agentweb.us/api/verify`.
@@ -46,9 +44,9 @@ Authorization: Bearer aw_<key>
 12. Create checkout only after the customer approves scoped payment authority.
 13. Wait for Dodo webhook credit fulfillment, then verify install and execute approved Agent Maps.
 
-## 5. Execute and verify
+## 4. Execute and verify
 
-Call `execute` with the selected Action Map and declared inputs. Treat the returned status, verification artifact, receipt, or structured failure as the source of truth. Never infer completion only because a request was accepted.
+Call the `execute` tool (or `POST /api/execute` over REST) with the selected action and declared inputs. Execution reserves one credit, runs the mapped action, verifies completion, settles only verified work, and returns a support receipt. Treat the returned status, verification artifact, receipt, or structured failure as the source of truth. Never infer completion only because a request was accepted. If a site is not mapped yet, call `request_map` to queue a build and poll `agentweb_map_status`.
 
 ## Safety rules
 
@@ -62,4 +60,4 @@ Call `execute` with the selected Action Map and declared inputs. Treat the retur
 - [Authentication and connections](/agent-auth)
 - [Public MCP tool manifest](https://www.agentweb.us/.well-known/mcp/tools.json)
 - [OpenAPI specification](https://www.agentweb.us/openapi.json)
-- [Mapped-site library](https://www.agentweb.us/library)
+- [Mapped-site library](https://www.agentweb.us/sites)

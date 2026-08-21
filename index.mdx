@@ -4,7 +4,7 @@ sidebarTitle: "Overview"
 description: "AgentWeb documentation for connecting an AI agent, discovering supported website actions, authenticating, executing, and verifying results."
 ---
 
-AgentWeb connects an existing AI agent to supported web actions through MCP and API. Start with discovery, create an account only when execution requires one, and check the returned status or verification before reporting completion.
+AgentWeb connects an existing AI agent to supported web actions through MCP and API. Every live tool, including `read_page` and `discover`, requires an AgentWeb account and `aw_` API key; account creation runs in-conversation through the one-link sign-in flow. Check the returned status or verification before reporting completion.
 
 ## Start here
 
@@ -18,8 +18,8 @@ AgentWeb connects an existing AI agent to supported web actions through MCP and 
 
 ## Execution sequence
 
-1. Read a page or call discovery for the target domain.
-2. Authenticate before listing or executing mapped actions.
+1. Authenticate with an `aw_` API key (create one with the one-link sign-in tools).
+2. Read a page or call discovery for the target domain, then list mapped actions.
 3. Connect the target-site account if the selected action requires it.
 4. Confirm the inputs and obtain approval for consequential actions.
 5. Execute once and use the structured result to report success, failure, or required intervention.

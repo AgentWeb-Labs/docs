@@ -6,25 +6,12 @@ description: "AgentWeb MCP Streamable HTTP, streaming response, error recovery, 
 
 AgentWeb's runtime endpoint at `https://mcp.agentweb.us/mcp` uses MCP Streamable HTTP. Public tool metadata is available before authentication; execution requires scoped credentials.
 
-## SSE and server-sent events
+## Transport
 
-Agents may request streaming progress with `Accept: text/event-stream`. Streaming responses use `Content-Type: text/event-stream` for server-sent events when an approved mapped workflow has multiple execution stages.
+`POST https://mcp.agentweb.us/mcp` follows the MCP Streamable HTTP specification, including standard headers such as `mcp-session-id`, `mcp-protocol-version`, and `Last-Event-ID`. Unauthenticated callers receive one-link onboarding JSON; use `/.well-known/mcp/tools.json` for unauthenticated tool metadata. Tool calls finish with a typed JSON result containing status, verification, receipt, or a structured failure.
+
+Long-running map builds are not streamed: `request_map` returns a request ID, and agents poll `agentweb_map_status` for progress.
 
 ## Error recovery
 
-Structured errors include an error code, human-readable message, retryability, and rate-limit headers when relevant. Agents should honor `Retry-After` and avoid retrying irreversible actions without a fresh idempotency key and verification state.
-
-## Streaming semantics
-
-Long-running mapped workflows may stream progress over the MCP transport and finish with a typed JSON result containing workflow ID, completion status, verification artifact, receipt, or structured failure class.
-
-```
-POST https://mcp.agentweb.us/mcp
-Accept: text/event-stream
-
-event: progress
-data: {"workflow_id":"wf_123","stage":"checkout_authority_validated"}
-
-event: complete
-data: {"workflow_id":"wf_123","status":"verified","verification_artifact":{}}
-```
+Structured errors include an error code, human-readable message, and retryability. Rate-limited responses return a `Retry-After` header; agents should honor it and avoid retrying irreversible actions without a fresh `Idempotency-Key` and verification state.

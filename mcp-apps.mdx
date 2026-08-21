@@ -16,10 +16,14 @@ AgentWeb exposes website reading, action discovery, account setup, target-site c
 
 ## Core execution tools
 
+Every live tool below requires an AgentWeb `aw_` API key.
+
 - `read_page`: retrieve accessible page content as structured text and metadata.
 - `discover`: inspect AgentWeb coverage and entry points for a domain.
-- `list_actions`: list mapped actions after AgentWeb authentication.
-- `execute`: run a selected Action Map with declared inputs and return structured status or verification.
+- `list_actions`: list curated sites and actions; an exact domain returns that site's full action definitions.
+- `execute`: the core capability. Reserve one credit, run a mapped action, verify completion, settle only verified work, and return a support receipt. Also available over REST as `POST /api/execute`.
+- `request_map` and `agentweb_map_status`: queue a curated action map build for an unmapped site and poll its progress.
+- `get_usage`: check remaining credits and whether the preceding calls were charged.
 
 ## Account and connection tools
 
@@ -27,19 +31,21 @@ AgentWeb exposes website reading, action discovery, account setup, target-site c
 - `agentweb_start_api_key_signup` and `agentweb_complete_api_key_signup`: email-code fallback.
 - `agentweb_start_connection` and `agentweb_poll_connection`: connect a target-site account when required.
 - `agentweb_auth_status` and `agentweb_connection_status`: inspect current AgentWeb and target-site state.
+- `agentweb_set_location`: save the user's home location for near-me tasks.
+- `agentweb_identify`, `agentweb_feedback`, `agentweb_autonomous_mode`: register an email, send feedback, and record explicit autonomous-mode consent.
 
 ## Installation and billing flow
 
 1. `agentweb_scan_business`: inspect a company URL for agent readiness.
 2. `agentweb_install_agentweb`: return an Agent Tool install plan, PR files, pricing package, Dodo payment authority requirements, and verification checklist.
 3. `agentweb_price_setup`: return setup package and payment requirements.
-4. `agentweb_create_checkout_session`: create Dodo hosted checkout for Pro or Max account plans.
+4. `agentweb_create_checkout_session`: hand the signed-in customer a Dodo hosted checkout link for the Starter plan. Enterprise is sales-led via [https://agentweb.us/demo](https://agentweb.us/demo). Agent-held API keys cannot start billing directly.
 5. `agentweb_verify_install`: verify deployed discovery surfaces and return proof.
 
 ## Action execution flow
 
-1. Read or discover anonymously.
-2. Use the claim-link flow and reconnect with the returned `aw_` key.
+1. Use the claim-link flow and reconnect with the returned `aw_` key (only the signup tools and `agentweb_auth_status` work unauthenticated).
+2. Read or discover the target domain.
 3. List actions and select one supported contract.
 4. Connect the required target-site account, if any.
 5. Confirm consequential inputs, execute once, and report the returned state.
