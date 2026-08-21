@@ -3,8 +3,8 @@
   "name": "AgentWeb",
   "theme": "luma",
   "logo": {
-    "light": "https://www.agentweb.us/logo-icon.png",
-    "dark": "https://www.agentweb.us/logo-icon.png"
+    "light": "/logo.svg",
+    "dark": "/logo.svg"
   },
   "favicon": "https://www.agentweb.us/logo-icon.png",
   "colors": {
@@ -43,23 +43,42 @@
         "groups": [
           {
             "group": "Get started",
-            "pages": ["index", "quickstart", "install-agentweb"]
+            "pages": [
+              "index",
+              "quickstart",
+              "install-agentweb"
+            ]
           },
           {
             "group": "Connect",
-            "pages": ["agent-auth", "mcp-apps"]
+            "pages": [
+              "agent-auth",
+              "mcp-apps"
+            ]
           },
           {
             "group": "Reference",
-            "pages": ["api", "scopes", "webhooks", "streaming", "sandbox"]
+            "pages": [
+              "api",
+              "scopes",
+              "webhooks",
+              "streaming",
+              "sandbox"
+            ]
           },
           {
             "group": "Commerce",
-            "pages": ["agent-commerce", "acp-ucp", "autonomous-agents"]
+            "pages": [
+              "agent-commerce",
+              "acp-ucp",
+              "autonomous-agents"
+            ]
           },
           {
             "group": "Plans",
-            "pages": ["pricing"]
+            "pages": [
+              "pricing"
+            ]
           }
         ]
       }
