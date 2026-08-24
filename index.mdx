@@ -6,6 +6,10 @@ description: "AgentWeb documentation for connecting an AI agent, discovering sup
 
 AgentWeb connects an existing AI agent to supported web actions through MCP and API. Every live tool, including `read_page` and `discover`, requires an AgentWeb account and `aw_` API key; account creation runs in-conversation through the one-link sign-in flow. Check the returned status or verification before reporting completion.
 
+## Does it work on my site?
+
+AgentWeb currently maps over 1,100 sites, each with named, executable actions. Call `list_actions` for the live catalogue (paginated, with per-site action counts), or browse the [mapped-site library](https://www.agentweb.us/sites). Passing an exact domain to `list_actions` returns that site's full action definitions with parameters. If a site is not mapped yet, `request_map` queues a build and `agentweb_map_status` reports progress.
+
 ## Start here
 
 - [AgentWeb quickstart](/quickstart)

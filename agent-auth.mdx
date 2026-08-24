@@ -26,7 +26,7 @@ Email-code tools remain available as a fallback. Do not create an account from a
 Authorization: Bearer aw_<key>
 ```
 
-Agents can create a key through the one-link flow. First show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy). Then call `agentweb_start_claim_link_signup`, show only `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with `deviceCode` while the user signs in. The poll result returns the key, `welcome_message`, and setup command; send `welcome_message` in the original conversation. Raw HTTP fallback: `POST https://mcp.agentweb.us/agent/identity`, then `POST https://mcp.agentweb.us/oauth2/token` with `grant_type=urn:ietf:params:oauth:grant-type:device_code` and `device_code`. Email-only agent signup is not supported. The email-code tools `agentweb_start_api_key_signup` and `agentweb_complete_api_key_signup` remain available as fallback, as do A2A `task_type=start_api_key_signup` / `complete_api_key_signup` and raw HTTP `POST /api/register` + `POST /api/verify`.
+The one-link flow above is the preferred way to create a key. The completed poll also returns a `welcome_message` and setup command; send `welcome_message` in the original conversation. Raw HTTP fallback: `POST https://mcp.agentweb.us/agent/identity`, then `POST https://mcp.agentweb.us/oauth2/token` with `grant_type=urn:ietf:params:oauth:grant-type:device_code` and `device_code`. Email-only agent signup is not supported. A2A agents call `tasks/create` with `task_type=start_api_key_signup` then `complete_api_key_signup`; raw email-code clients can use `POST /api/register` + `POST /api/verify`.
 
 API keys are scoped to approved Agent Maps. Do not use AgentWeb keys for raw browser control, private account access, or unrestricted payment-provider actions.
 
@@ -39,7 +39,7 @@ API keys are scoped to approved Agent Maps. Do not use AgentWeb keys for raw bro
 
 ## Provider connection example
 
-For cookie-backed providers such as Hermes, agents should call `agentweb_auth_status` or `agentweb_connection_status` first. If the provider is not connected, call `agentweb_start_connection`, send the human to the returned `connect_url`, then call `agentweb_poll_connection` until it returns `connected=true`.
+Some target sites use cookie-backed connections managed by AgentWeb (for example the partner site Hermes, tryhermes.dev). For these providers, agents should call `agentweb_auth_status` or `agentweb_connection_status` first. If the provider is not connected, call `agentweb_start_connection`, send the human to the returned `connect_url`, then call `agentweb_poll_connection` until it returns `connected=true`.
 
 ## Authority is separate
 

@@ -30,11 +30,46 @@ Authorization: Bearer aw_<key>
 
 ```json
 {
-  "domain": "example.com",
+  "domain": "asos.com",
   "action": "search_products",
-  "params": { "query": "desk lamp", "page": 1 }
+  "params": { "q": "black linen shirt", "limit": "2" }
 }
 ```
+
+A real response (data trimmed):
+
+```json
+{
+  "success": true,
+  "domain": "asos.com",
+  "action": "search_products",
+  "data": {
+    "kind": "json",
+    "value": {
+      "itemCount": 618,
+      "products": [
+        {
+          "id": 210464145,
+          "name": "ASOS DESIGN relaxed deep revere modal shirt in black",
+          "price": { "current": { "value": 30, "text": "£30.00" }, "currency": "GBP" },
+          "brandName": "ASOS DESIGN",
+          "url": "asos-design/asos-design-relaxed-deep-revere-modal-shirt-in-black/prd/210464145"
+        }
+      ]
+    }
+  },
+  "duration_ms": 2850,
+  "map_version": "0.1.2",
+  "billing": {
+    "credits_charged": 1,
+    "balance_remaining": 24999,
+    "receipt_id": "awr_6ca354c4f1e95d0cde47e21d",
+    "policy": "Credits are debited only on a verified completion; failed actions are refunded."
+  }
+}
+```
+
+`billing.receipt_id` is the support receipt for the action. For actions where step success can diverge from job completion (checkouts, payments), the response adds an `outcome` object: `status` of `complete` (with `proof` such as an order ref), `partial` (with the exact `missing_step` and whether it is `safe_to_retry`), or `unavailable`. On failure, `success` is `false` with a typed `error.code` (`AUTH_REQUIRED`, `INSUFFICIENT_CREDITS`, `UPSTREAM_APP_ERROR`, ...) plus a `trace_id` to quote in a bug report, and the credit reservation is refunded.
 
 - ~1 credit per completed action; **failed actions are refunded**.
 - Send an `Idempotency-Key` header on retries — the same key maps to the same billing task, so a retried call is never charged twice.

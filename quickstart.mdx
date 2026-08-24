@@ -1,12 +1,12 @@
 ---
 title: "AgentWeb quickstart"
 sidebarTitle: "Quickstart"
-description: "Connect AgentWeb through MCP, discover supported website actions, authenticate safely, execute a mapped action, and verify the result."
+description: "Connect AgentWeb through MCP, discover supported website actions, execute a mapped action, and verify the result."
 ---
 
-Connect AgentWeb to the AI agent you already use, authenticate, check whether the target website and action are supported, then call `execute` to run a mapped action. Executing mapped actions through `execute` (MCP) or `POST /api/execute` (REST) is the core capability.
+Connect AgentWeb to the AI agent you already use, find a mapped action, and call `execute`. Executing mapped actions through `execute` (MCP) or `POST /api/execute` (REST) is the core capability. Four steps.
 
-<Note>Every live tool — including `read_page` and `discover` — requires an AgentWeb `aw_` API key. Only the signup tools and `agentweb_auth_status` work anonymously.</Note>
+<Note>Every live tool, including `read_page` and `discover`, requires an AgentWeb `aw_` API key. Only the signup tools and `agentweb_auth_status` work anonymously.</Note>
 
 ## 1. Add the MCP server
 
@@ -18,48 +18,115 @@ claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp
 
 Other MCP clients can add the same URL as a remote Streamable HTTP server.
 
-## 2. Connect an AgentWeb account
+## 2. Sign in
 
-Before account creation, show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy). Prefer `agentweb_start_claim_link_signup`, show only the returned `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the human signs in. The completed poll returns the API key once.
-
-Email-code signup through `agentweb_start_api_key_signup` and `agentweb_complete_api_key_signup` remains a fallback. Reconnect with:
+Show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy), call `agentweb_start_claim_link_signup`, show only the returned `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the human signs in. The completed poll returns the API key once. Reconnect with:
 
 ```
 Authorization: Bearer aw_<key>
 ```
 
-## 3. Read, discover, and select the action
+Fallbacks (email-code, raw HTTP, A2A) are on [Auth & connections](/agent-auth).
 
-Every live tool, including `read_page` and `discover`, requires the `aw_` API key. Use `read_page` to retrieve accessible page content or `discover` to inspect AgentWeb coverage for a domain. Do not assume that a mapped domain supports every action on that website.
+## 3. Find your action
 
-1. Discover AgentWeb with [/llms.txt](https://www.agentweb.us/llms.txt), [A2A Agent Card](https://www.agentweb.us/.well-known/agent-card.json), [OpenAPI](https://www.agentweb.us/openapi.json), and [MCP tools](https://www.agentweb.us/.well-known/mcp/tools.json).
-2. If the user has no `aw_` key, show them the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy), then call `agentweb_start_claim_link_signup`, show only `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the user signs in. The poll result returns the key, `welcome_message`, and setup command; send `welcome_message` in the original conversation. Raw HTTP fallback: `POST https://mcp.agentweb.us/agent/identity` then `POST https://mcp.agentweb.us/oauth2/token`. Email-only agent signup is not supported. Email-code fallback: `agentweb_start_api_key_signup` then `agentweb_complete_api_key_signup`. A2A agents call `tasks/create` with `task_type=start_api_key_signup`, then `task_type=complete_api_key_signup`. Raw email-code clients can use `POST https://mcp.agentweb.us/api/register` and `POST https://mcp.agentweb.us/api/verify`.
-3. Call `list_actions` after authentication.
-4. Inspect the selected action's required fields, account requirements, and possible outcomes.
-5. Before partner execution, call `agentweb_auth_status` or `agentweb_connection_status`. If Hermes is not connected, call `agentweb_start_connection`, have the human complete the login view, then poll with `agentweb_poll_connection`.
-6. If another target site needs a user account, call `agentweb_start_connection`, show the returned connection URL to the human, and poll `agentweb_poll_connection` until the connection is ready.
-7. Run `POST /api/readiness/scan` with a company URL.
-8. When a user asks to install AgentWeb for a repo or business, read [Install AgentWeb](/install-agentweb) and call `agentweb_install_agentweb`.
-9. Read [action catalog](https://www.agentweb.us/.well-known/action-catalog.json) for allowed actions, disallowed actions, required fields, auth, payment, and verification rules.
-10. Use `agentweb_price_setup` to understand package, usage meters, and payment-authority requirements.
-11. Before any paid, irreversible, or externally visible action, summarize the exact inputs and obtain the required approval.
-12. Create checkout only after the customer approves scoped payment authority.
-13. Wait for Dodo webhook credit fulfillment, then verify install and execute approved Agent Maps.
+Call `list_actions` with no arguments for the catalogue of mapped sites (over 1,100 and growing):
+
+```json
+{
+  "total": 1167,
+  "page_size": 100,
+  "next_cursor": "blackdiamondequipment.com",
+  "sites": [
+    { "domain": "allbirds.com", "action_count": 5, "connect_providers": ["allbirds-com"] },
+    { "domain": "asos.com", "action_count": 6, "connect_providers": [] }
+  ]
+}
+```
+
+Call it again with an exact `domain` for that site's full action definitions, including every parameter, defaults, and whether the action needs a connected account:
+
+```json
+{
+  "domain": "asos.com",
+  "actions": [
+    {
+      "name": "search_products",
+      "description": "Free-text product search. Returns itemCount, products[] (id, name, price, colour, brandName, url, imageUrl) and brand facets. Page with limit+offset.",
+      "params": [
+        { "name": "q", "required": true, "description": "Free-text search query, e.g. \"black linen shirt\"." },
+        { "name": "limit", "description": "Page size.", "default": "24" }
+      ]
+    }
+  ]
+}
+```
+
+If an action lists an `auth_provider`, connect the target-site account first: check `agentweb_connection_status`, and if it is not connected call `agentweb_start_connection`, show the human the returned URL, then poll `agentweb_poll_connection`. Details on [Auth & connections](/agent-auth). If a site is not mapped yet, call `request_map` to queue a build and poll `agentweb_map_status`.
 
 ## 4. Execute and verify
 
-Call the `execute` tool (or `POST /api/execute` over REST) with the selected action and declared inputs. Execution reserves one credit, runs the mapped action, verifies completion, settles only verified work, and returns a support receipt. Treat the returned status, verification artifact, receipt, or structured failure as the source of truth. Never infer completion only because a request was accepted. If a site is not mapped yet, call `request_map` to queue a build and poll `agentweb_map_status`.
+Call `execute` (or `POST /api/execute` over REST) with the domain, action, and declared params:
+
+```json
+{
+  "domain": "asos.com",
+  "action": "search_products",
+  "params": { "q": "black linen shirt", "limit": "2" }
+}
+```
+
+A real response:
+
+```json
+{
+  "success": true,
+  "domain": "asos.com",
+  "action": "search_products",
+  "data": {
+    "kind": "json",
+    "value": {
+      "itemCount": 618,
+      "products": [
+        {
+          "id": 210464145,
+          "name": "ASOS DESIGN relaxed deep revere modal shirt in black",
+          "price": { "current": { "value": 30, "text": "£30.00" }, "currency": "GBP" },
+          "brandName": "ASOS DESIGN",
+          "url": "asos-design/asos-design-relaxed-deep-revere-modal-shirt-in-black/prd/210464145"
+        }
+      ]
+    }
+  },
+  "duration_ms": 2850,
+  "map_version": "0.1.2",
+  "billing": {
+    "credits_charged": 1,
+    "balance_remaining": 24999,
+    "receipt_id": "awr_6ca354c4f1e95d0cde47e21d",
+    "policy": "Credits are debited only on a verified completion; failed actions are refunded."
+  }
+}
+```
+
+Treat the returned fields as the source of truth, never an accepted request:
+
+- `success` answers "did the mapped call work". For actions where step success can diverge from job completion (checkouts, payments), an `outcome` object states the job-level truth: `status` of `complete` (with `proof` such as an order ref), `partial` (with the exact `missing_step` and `safe_to_retry`), or `unavailable`.
+- On failure, `success` is `false` with a typed `error.code` (`AUTH_REQUIRED`, `INSUFFICIENT_CREDITS`, `UPSTREAM_APP_ERROR`, ...), a `trace_id` you can quote in a bug report, and the credit reservation is refunded.
+- `billing.receipt_id` is the support receipt for the action.
 
 ## Safety rules
 
 - Never place passwords, raw card numbers, unrestricted credentials, or unrelated private conversation content in a tool request.
 - Stop when the action is unsupported, unsafe, expired, over a limit, or missing approval.
+- Before any paid, irreversible, or externally visible action, summarize the exact inputs and obtain approval.
 - Use a first-party API when it already provides the full required workflow and access model.
 
-## Reference
+## Going further
 
+- Installing AgentWeb for a business or repo: [Install AgentWeb](/install-agentweb)
+- Payments, payment authority, and checkout: [Agent commerce](/agent-commerce)
 - [MCP tools and discovery files](/mcp-apps)
 - [Authentication and connections](/agent-auth)
-- [Public MCP tool manifest](https://www.agentweb.us/.well-known/mcp/tools.json)
 - [OpenAPI specification](https://www.agentweb.us/openapi.json)
 - [Mapped-site library](https://www.agentweb.us/sites)
