@@ -69,6 +69,32 @@ A real response (data trimmed):
 }
 ```
 
+A real failed response (unknown action; note the refund and `trace_id`):
+
+```json
+{
+  "success": false,
+  "domain": "asos.com",
+  "action": "nonexistent_action",
+  "data": null,
+  "error": {
+    "code": "ACTION_NOT_FOUND",
+    "message": "Action \"nonexistent_action\" not found on asos.com. Available actions: search_suggestions, search_products, search_products_by_category, get_product_summaries, get_delivery_countries, get_facet_enrichments."
+  },
+  "duration_ms": 3,
+  "map_version": "0.1.2",
+  "trace_id": "tr_66d8ed4bcb9a",
+  "billing": {
+    "credits_charged": 0,
+    "balance_remaining": 24997,
+    "receipt_id": "awr_be0ac634e868e971cd43090b",
+    "policy": "Credits are debited only on a verified completion; failed actions are refunded."
+  }
+}
+```
+
+Failure codes an integrator should handle: `MAP_NOT_FOUND`, `ACTION_NOT_FOUND`, `INVALID_PARAMS`, `RATE_LIMITED`, `TIMEOUT`, `UPSTREAM_ERROR`, `UPSTREAM_APP_ERROR` (transport 2xx but the payload reports failure), `AUTH_REQUIRED` (with an `error.auth` object describing the connection to make), `PAYMENT_APPROVAL_REQUIRED` and `PAYMENT_DECLINED` (with `error.payment`), `INSUFFICIENT_CREDITS` and `WORKSPACE_INACTIVE` (with `error.credits` carrying top-up or upgrade guidance). Every failure refunds the credit reservation and sets `trace_id`, a 7-day redacted trace you can quote in a support request.
+
 `billing.receipt_id` is the support receipt for the action. For actions where step success can diverge from job completion (checkouts, payments), the response adds an `outcome` object: `status` of `complete` (with `proof` such as an order ref), `partial` (with the exact `missing_step` and whether it is `safe_to_retry`), or `unavailable`. On failure, `success` is `false` with a typed `error.code` (`AUTH_REQUIRED`, `INSUFFICIENT_CREDITS`, `UPSTREAM_APP_ERROR`, ...) plus a `trace_id` to quote in a bug report, and the credit reservation is refunded.
 
 - ~1 credit per completed action; **failed actions are refunded**.

@@ -16,7 +16,33 @@ AgentWeb helps AI agents initiate payment-related business workflows only after 
 
 ## Protocol signals
 
-AgentWeb publishes delegated payment metadata at [/.well-known/agent-commerce.json](https://www.agentweb.us/.well-known/agent-commerce.json) and [/.well-known/payment-protocols.json](https://www.agentweb.us/.well-known/payment-protocols.json). These files expose Dodo checkout support, OAuth metadata, and ACP/UCP integration-target signals without claiming raw card custody or unrestricted autonomous payment authority.
+AgentWeb publishes delegated payment metadata at [/.well-known/agent-commerce.json](https://www.agentweb.us/.well-known/agent-commerce.json) and [/.well-known/payment-protocols.json](https://www.agentweb.us/.well-known/payment-protocols.json). These files expose Dodo checkout support, OAuth metadata, and ACP/UCP integration-target signals without claiming raw card custody or unrestricted autonomous payment authority. The live `agent-commerce.json`, trimmed:
+
+```json
+{
+  "schema_version": "1.0",
+  "name": "AgentWeb Agent Commerce",
+  "payment_modes": [
+    {
+      "id": "agent_pays_agentweb",
+      "status": "authenticated_customer_web_session_only",
+      "entrypoint": "https://agentweb.us/pricing",
+      "connector_can_initiate_checkout": false,
+      "authority_required": true,
+      "human_approval_required_before_payment": true
+    },
+    {
+      "id": "agent_pays_business_through_agentweb_map",
+      "status": "design_partner_mapping",
+      "authority_required": true,
+      "human_approval_required_before_payment": true
+    }
+  ],
+  "protocol_signals": [
+    { "id": "dodo_hosted_checkout", "status": "implemented", "connector_can_initiate_checkout": false }
+  ]
+}
+```
 
 ## Concrete integration docs
 
