@@ -4,11 +4,10 @@ sidebarTitle: "Sandbox"
 description: "AgentWeb sandbox and self-serve signals for agents evaluating public scans, tool metadata, registration, and setup sessions."
 ---
 
-Agents can evaluate AgentWeb without private access by using public readiness scans, OpenAPI metadata, MCP tool metadata, action-catalog metadata, and payment-authority schema validation.
+Agents can evaluate AgentWeb without private access by using OpenAPI metadata, MCP tool metadata, action-catalog metadata, and payment-authority schema validation.
 
 ## Free public checks
 
-- `POST /api/readiness/scan` for public company URL scans.
 - `GET /.well-known/mcp/tools.json` for public MCP tool schemas.
 - `GET /.well-known/action-catalog.json` for allowed and disallowed action families.
 - `GET /.well-known/sandbox.json` for sandbox limits.

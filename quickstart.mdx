@@ -16,7 +16,14 @@ AgentWeb exposes a Streamable HTTP MCP server at `https://mcp.agentweb.us/mcp`.
 claude mcp add agentweb --transport http https://mcp.agentweb.us/mcp
 ```
 
-Other MCP clients can add the same URL as a remote Streamable HTTP server.
+Codex CLI (`~/.codex/config.toml`):
+
+```
+[mcp_servers.agentweb]
+url = "https://mcp.agentweb.us/mcp"
+```
+
+Cursor and Windsurf: add `https://mcp.agentweb.us/mcp` as a remote MCP server by URL (Streamable HTTP; no catalog entry needed). Any other MCP client takes the same URL. Per-client steps: [install.md](https://www.agentweb.us/install.md).
 
 ## 2. Sign in
 
