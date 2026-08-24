@@ -93,7 +93,26 @@ A real failed response (unknown action; note the refund and `trace_id`):
 }
 ```
 
-Failure codes an integrator should handle: `MAP_NOT_FOUND`, `ACTION_NOT_FOUND`, `INVALID_PARAMS`, `RATE_LIMITED`, `TIMEOUT`, `UPSTREAM_ERROR`, `UPSTREAM_APP_ERROR` (transport 2xx but the payload reports failure), `AUTH_REQUIRED` (with an `error.auth` object describing the connection to make), `PAYMENT_APPROVAL_REQUIRED` and `PAYMENT_DECLINED` (with `error.payment`), `INSUFFICIENT_CREDITS` and `WORKSPACE_INACTIVE` (with `error.credits` carrying top-up or upgrade guidance). Every failure refunds the credit reservation and sets `trace_id`, a 7-day redacted trace you can quote in a support request.
+The complete `error.code` enum, with the HTTP status the REST lane returns:
+
+| Code | HTTP | Meaning |
+|---|---|---|
+| `INVALID_PARAMS` | 400 | A param is missing or malformed; the message names it |
+| `INSUFFICIENT_CREDITS` | 402 | Not enough credits; `error.credits` carries the top-up link |
+| `PAYMENT_APPROVAL_REQUIRED` | 402 | Payment action has no approved purchase yet; `error.payment` has the approval URL |
+| `PAYMENT_DECLINED` | 402 | A server-side payment guard refused (over cap, wrong merchant, expired) |
+| `WORKSPACE_INACTIVE` | 403 | No active plan (trial ended); `error.credits` carries checkout guidance |
+| `BILLING_ACCOUNT_RESTRICTED` | 403 | Account barred from billed actions |
+| `AUTH_REQUIRED` | 403 | Target-site connection needed; `error.auth` describes which |
+| `AUTH_MISCONFIGURED` | 403 | The stored connection is broken; reconnect |
+| `MAP_NOT_FOUND` / `ACTION_NOT_FOUND` | 404 | Domain not mapped / action not in the map (message lists available actions) |
+| `RATE_LIMITED` | 429 | Slow down and retry after the window |
+| `PAYMENT_NOT_SUPPORTED` | 501 | Terminal payment step not built for this merchant; nothing was charged |
+| `UPSTREAM_ERROR` / `UPSTREAM_APP_ERROR` / `PARSE_ERROR` / `CURATED_MAP_STALE` | 502 | The target site failed (including 2xx transport whose payload reports failure) |
+| `BILLING_UNAVAILABLE` | 503 | Ledger could not document the call, so it was not run; nothing charged |
+| `TIMEOUT` | 504 | The mapped call timed out |
+
+Every failure refunds the credit reservation and sets `trace_id`, a 7-day redacted trace you can quote in a support request. Over MCP the envelope above is returned directly; over REST, success wraps it as `{ "ok": true, "result": { ... }, "billing": { ... } }` and failure as `{ "ok": false, "error": { ... }, "trace_id": "...", "support_id": "awr_..." }` with the HTTP status from the table. Delegation codes for org workspaces (`MEMBER_NOT_LINKED`, `APPROVAL_PENDING`, `DELEGATION_DENIED`) carry `error.delegation`.
 
 `billing.receipt_id` is the support receipt for the action. For actions where step success can diverge from job completion (checkouts, payments), the response adds an `outcome` object: `status` of `complete` (with `proof` such as an order ref), `partial` (with the exact `missing_step` and whether it is `safe_to_retry`), or `unavailable`. On failure, `success` is `false` with a typed `error.code` (`AUTH_REQUIRED`, `INSUFFICIENT_CREDITS`, `UPSTREAM_APP_ERROR`, ...) plus a `trace_id` to quote in a bug report, and the credit reservation is refunded.
 
