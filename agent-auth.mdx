@@ -39,7 +39,7 @@ API keys are scoped to approved Agent Maps. Do not use AgentWeb keys for raw bro
 
 ## Provider connection example
 
-Some target sites use cookie-backed connections managed by AgentWeb (for example the partner site Hermes, tryhermes.dev). For these providers, agents should call `agentweb_auth_status` or `agentweb_connection_status` first. If the provider is not connected, call `agentweb_start_connection`, send the human to the returned `connect_url`, then call `agentweb_poll_connection` until it returns `connected=true`.
+`provider` is always the exact `auth_provider` id an action declares in `list_actions` - for example `ubereats-com` for Uber Eats actions or `allbirds-com` for Allbirds. Never guess a provider or reuse one from a different site. Check `agentweb_connection_status` first; if the provider is not connected, call `agentweb_start_connection`, send the human to the returned `connect_url`, then call `agentweb_poll_connection` until it returns `connected=true`. The same flow covers AgentWeb-managed cookie-backed partners (such as Hermes, tryhermes.dev).
 
 ## Authority is separate
 
