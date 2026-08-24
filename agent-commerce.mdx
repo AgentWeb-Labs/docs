@@ -11,7 +11,7 @@ AgentWeb helps AI agents initiate payment-related business workflows only after 
 1. Run a public readiness scan for the business.
 2. Return the setup scope and recommended package.
 3. Require a payment authority artifact before checkout.
-4. Call the `agentweb_create_checkout_session` MCP tool to get a handoff URL; the signed-in customer completes Dodo hosted checkout in the browser. (`POST /api/billing/create-checkout-session` is reserved for the customer's own web session and rejects agent `aw_` keys.)
+4. Call the `agentweb_create_checkout_session` MCP tool to get a handoff URL; the signed-in customer completes hosted checkout with Dodo Payments (AgentWeb's payment processor) in the browser. (`POST /api/billing/create-checkout-session` is reserved for the customer's own web session and rejects agent `aw_` keys.)
 5. Grant credits only after the Dodo-signed webhook verifies payment state.
 
 ## Protocol signals

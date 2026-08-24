@@ -20,7 +20,22 @@ Other MCP clients can add the same URL as a remote Streamable HTTP server.
 
 ## 2. Sign in
 
-Show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy), call `agentweb_start_claim_link_signup`, show only the returned `verification_uri_complete`, and poll `agentweb_poll_claim_link_signup` with the returned `deviceCode` while the human signs in. The completed poll returns the API key once. Reconnect with:
+Show the human the [Terms](https://www.agentweb.us/terms) and [Privacy Policy](https://www.agentweb.us/privacy), then call `agentweb_start_claim_link_signup`. A real response (trimmed):
+
+```json
+{
+  "ok": true,
+  "device_code": "awdc_50381e15f195...",
+  "user_code": "BLWL-BDBN",
+  "verification_uri_complete": "https://agentweb.us/agent/identity?user_code=BLWL-BDBN",
+  "expires_in": 600,
+  "interval": 5,
+  "next_tool": "agentweb_poll_claim_link_signup",
+  "customer_instruction": "Open this link and sign in once. When AgentWeb says you are connected, go back to your agent."
+}
+```
+
+Show only `verification_uri_complete` to the human, then poll `agentweb_poll_claim_link_signup` with the `device_code` every `interval` seconds (pending polls return `authorization_pending`; the link expires after `expires_in` seconds). The completed poll returns the API key once. Reconnect with:
 
 ```
 Authorization: Bearer aw_<key>
