@@ -81,7 +81,7 @@ If an action lists an `auth_provider`, connect the target-site account first: ch
 
 ## 4. Execute and verify
 
-Call `execute` (or `POST /api/execute` over REST) with the domain, action, and declared params:
+Call `execute` (or `POST /api/execute` over REST) with the domain, action, and declared params. Optionally pass a stable `task_id` (MCP) or `Idempotency-Key` header (REST); a retried call with the same key maps to the same billing task and is never charged twice:
 
 ```json
 {
