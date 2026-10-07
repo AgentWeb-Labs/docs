@@ -45,27 +45,6 @@ API keys are scoped to approved Agent Maps. Do not use AgentWeb keys for raw bro
 
 A valid API key or connected browser session shows that access exists. It does not prove that the user approved this action, recipient, amount, time, or account. Consequential actions should carry explicit scope and approval, and the agent should surface relevant inputs before execution.
 
-## Delegated payment authority example
-
-```
-{
-  "authority_id": "auth_123",
-  "principal": {
-    "type": "business",
-    "id": "example_co",
-    "agent_provider": "claude_code"
-  },
-  "scope": ["price.setup", "create.setup_session"],
-  "amount_limit": { "value": 500000, "interval": "single_use" },
-  "currency": "usd",
-  "expires_at": "2026-05-08T00:00:00Z",
-  "revocation_url": "https://example.com/agent-authority/auth_123/revoke",
-  "receipt_required": true,
-  "verification_required": true,
-  "created_at": "2026-05-01T00:00:00Z"
-}
-```
-
 ## Create checkout session
 
 Connector API keys cannot initiate AgentWeb billing. `POST /api/billing/create-checkout-session` is called only by the customer's signed-in web session, where the Origin, bearer, and Idempotency-Key gates live; requests authorized with an `aw_` key are rejected. From an agent, call the `agentweb_create_checkout_session` MCP tool instead: it returns a handoff URL that signs the customer in and starts Dodo hosted checkout for the chosen plan. Open that URL in the customer's browser and let checkout finish there.
@@ -74,7 +53,7 @@ Connector API keys cannot initiate AgentWeb billing. `POST /api/billing/create-c
 
 - Public scans require no credentials and do not execute forms or payments.
 - Private execution requires an approved Agent Map and scoped credentials.
-- Paid account checkout is available for the Starter plan. Enterprise is sales-led: book a demo at [https://agentweb.us/demo](https://agentweb.us/demo).
+- Balance top-ups are available to any signed-in customer. Enterprise is sales-led: book a demo at [https://agentweb.us/demo](https://agentweb.us/demo).
 - Checkout success does not grant credits until Dodo webhook verification completes.
 
 ## Credential boundaries
