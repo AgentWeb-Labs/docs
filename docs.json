@@ -96,6 +96,14 @@
     {
       "source": "/autonomous-agents",
       "destination": "/quickstart"
+    },
+    {
+      "source": "/auth-and-limits.html",
+      "destination": "/agent-auth"
+    },
+    {
+      "source": "/sdk-integrations.html",
+      "destination": "https://www.agentweb.us/developers"
     }
   ]
 }

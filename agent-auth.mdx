@@ -47,7 +47,7 @@ A valid API key or connected browser session shows that access exists. It does n
 
 ## Create checkout session
 
-Connector API keys cannot initiate AgentWeb billing. `POST /api/billing/create-checkout-session` is called only by the customer's signed-in web session, where the Origin, bearer, and Idempotency-Key gates live; requests authorized with an `aw_` key are rejected. From an agent, call the `agentweb_create_checkout_session` MCP tool instead: it returns a handoff URL that signs the customer in and starts Dodo hosted checkout for the chosen plan. Open that URL in the customer's browser and let checkout finish there.
+Connector API keys cannot initiate AgentWeb billing. `POST /api/billing/create-checkout-session` is called only by the customer's signed-in web session, where the Origin, bearer, and Idempotency-Key gates live; requests authorized with an `aw_` key are rejected. From an agent, call the `agentweb_create_checkout_session` MCP tool instead: it returns a handoff URL that signs the customer in and starts Dodo hosted checkout for the chosen credit block ($25, $50 or $100). Open that URL in the customer's browser and let checkout finish there.
 
 ## Rules
 

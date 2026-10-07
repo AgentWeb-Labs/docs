@@ -99,9 +99,7 @@ The complete `error.code` enum, with the HTTP status the REST lane returns:
 |---|---|---|
 | `INVALID_PARAMS` | 400 | A param is missing or malformed; the message names it |
 | `INSUFFICIENT_CREDITS` | 402 | Not enough credits; `error.credits` carries the top-up link |
-| `PAYMENT_APPROVAL_REQUIRED` | 402 | Payment action has no approved purchase yet; `error.payment` has the approval URL |
 | `PAYMENT_DECLINED` | 402 | A server-side payment guard refused (over cap, wrong merchant, expired) |
-| `WORKSPACE_INACTIVE` | 403 | No active plan (trial ended); `error.credits` carries checkout guidance |
 | `BILLING_ACCOUNT_RESTRICTED` | 403 | Account barred from billed actions |
 | `AUTH_REQUIRED` | 403 | Target-site connection needed; `error.auth` describes which |
 | `AUTH_MISCONFIGURED` | 403 | The stored connection is broken; reconnect |
