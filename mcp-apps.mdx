@@ -34,12 +34,9 @@ Every live tool below requires an AgentWeb `aw_` API key.
 - `agentweb_set_location`: save the user's home location for near-me tasks.
 - `agentweb_identify`, `agentweb_feedback`, `agentweb_autonomous_mode`: register an email, send feedback, and record explicit autonomous-mode consent.
 
-## Installation and billing flow
+## Billing
 
-1. `agentweb_install_agentweb`: return an Agent Tool install plan, PR files, pricing package, Dodo payment authority requirements, and verification checklist.
-3. `agentweb_price_setup`: return setup package and payment requirements.
-4. `agentweb_create_checkout_session`: hand the signed-in customer a Dodo hosted checkout link for the Starter plan. Enterprise is sales-led via [https://agentweb.us/demo](https://agentweb.us/demo). Agent-held API keys cannot start billing directly.
-5. `agentweb_verify_install`: verify deployed discovery surfaces and return proof.
+- `agentweb_create_checkout_session`: hands the signed-in customer a Dodo hosted checkout that adds to their AgentWeb balance. Enterprise is sales-led via [https://agentweb.us/demo](https://agentweb.us/demo). Agent-held API keys cannot complete checkout.
 
 ## Action execution flow
 

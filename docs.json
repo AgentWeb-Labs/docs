@@ -45,8 +45,7 @@
             "group": "Get started",
             "pages": [
               "index",
-              "quickstart",
-              "install-agentweb"
+              "quickstart"
             ]
           },
           {
@@ -67,14 +66,6 @@
             ]
           },
           {
-            "group": "Commerce",
-            "pages": [
-              "agent-commerce",
-              "acp-ucp",
-              "autonomous-agents"
-            ]
-          },
-          {
             "group": "Plans",
             "pages": [
               "pricing"
@@ -88,5 +79,31 @@
     "socials": {
       "website": "https://www.agentweb.us"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/install-agentweb",
+      "destination": "/quickstart"
+    },
+    {
+      "source": "/agent-commerce",
+      "destination": "/pricing"
+    },
+    {
+      "source": "/acp-ucp",
+      "destination": "/pricing"
+    },
+    {
+      "source": "/autonomous-agents",
+      "destination": "/quickstart"
+    },
+    {
+      "source": "/auth-and-limits.html",
+      "destination": "/agent-auth"
+    },
+    {
+      "source": "/sdk-integrations.html",
+      "destination": "https://www.agentweb.us/developers"
+    }
+  ]
 }

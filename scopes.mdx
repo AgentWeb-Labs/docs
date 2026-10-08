@@ -1,28 +1,16 @@
 ---
 title: "AgentWeb scopes and permissions"
 sidebarTitle: "Scopes"
-description: "How AgentWeb permissions work: API-key authentication, per-tool auth requirements, and the payment authority scope vocabulary."
+description: "How AgentWeb permissions work: API-key authentication, per-tool auth requirements, and the billing boundary."
 ---
 
-AgentWeb permissions operate at two levels: what a caller can reach with an `aw_` API key, and what a delegated payment authority artifact allows an agent to request.
+AgentWeb permissions are about what a caller can reach with an `aw_` API key, and what only the signed-in customer can do.
 
 ## API key and tool-level auth
 
 Every live tool, including `read_page`, `discover`, `list_actions`, and `execute`, requires an AgentWeb `aw_` API key. Only the signup tools and `agentweb_auth_status` work unauthenticated. The [MCP tool manifest](https://www.agentweb.us/.well-known/mcp/tools.json) declares each tool's `auth` requirement and is the machine-readable source of truth.
 
 The public discovery metadata files require no credentials, and do not execute forms or payments.
-
-## Payment authority scopes
-
-Delegated payment authority artifacts carry a `scope` array. The valid values are defined by the [payment authority schema](https://www.agentweb.us/.well-known/payment-authority.schema.json):
-
-- `price.setup`: read setup and usage pricing.
-- `create.setup_session`: request an Agent Map setup session.
-- `generate.action_map_draft`: generate a draft action map.
-- `verify.install`: verify deployed agent-facing surfaces.
-- `execute.approved_action`: execute approved mapped actions.
-
-Every authority artifact also requires an amount limit, currency, expiry, revocation URL, receipt requirement, and verification requirement.
 
 ## Billing boundary
 
