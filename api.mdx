@@ -4,7 +4,7 @@ sidebarTitle: "API"
 description: "The AgentWeb REST surface: read, discover, execute, usage, agent-native signup, and billing, with the OpenAPI specification as the machine-readable contract."
 ---
 
-Base URL for the runtime API: `https://mcp.agentweb.us`. The full machine-readable contract is the [OpenAPI specification](https://www.agentweb.us/openapi.json).
+Base URL for the runtime API: `https://mcp.agentweb.us`. Browse every endpoint in the [API reference](https://www.agentweb.us/api-reference). The same contract is available as raw [OpenAPI JSON](https://www.agentweb.us/openapi.json) for tools and agents.
 
 Authenticated endpoints take an AgentWeb key in the header:
 
@@ -141,3 +141,4 @@ Every failure refunds the credit reservation and sets `trace_id`, a 7-day redact
 - [`/.well-known/action-catalog.json`](https://www.agentweb.us/.well-known/action-catalog.json) — allowed and disallowed action families
 - [`/.well-known/sandbox.json`](https://www.agentweb.us/.well-known/sandbox.json) — sandbox limits
 - [`/openapi.json`](https://www.agentweb.us/openapi.json) — this API, fully specified
+- [`/api-reference`](https://www.agentweb.us/api-reference) — the same specification rendered for reading
