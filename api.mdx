@@ -112,7 +112,7 @@ The complete `error.code` enum, with the HTTP status the REST lane returns:
 
 Every failure refunds the credit reservation and sets `trace_id`, a 7-day redacted trace you can quote in a support request. Over MCP the envelope above is returned directly; over REST, success wraps it as `{ "ok": true, "result": { ... }, "billing": { ... } }` and failure as `{ "ok": false, "error": { ... }, "trace_id": "...", "support_id": "awr_..." }` with the HTTP status from the table. Delegation codes for org workspaces (`MEMBER_NOT_LINKED`, `APPROVAL_PENDING`, `DELEGATION_DENIED`) carry `error.delegation`.
 
-`billing.receipt_id` is the support receipt for the action. For actions where step success can diverge from job completion (checkouts, payments), the response adds an `outcome` object: `status` of `complete` (with `proof` such as an order ref), `partial` (with the exact `missing_step` and whether it is `safe_to_retry`), or `unavailable`. On failure, `success` is `false` with a typed `error.code` (`AUTH_REQUIRED`, `INSUFFICIENT_CREDITS`, `UPSTREAM_APP_ERROR`, ...) plus a `trace_id` to quote in a bug report, and the credit reservation is refunded.
+`billing.receipt_id` is the support receipt for the action. For actions where step success can diverge from job completion (checkouts, payments), the response adds an `outcome` object: `status` of `complete` (with `proof` such as an order ref), `partial` (with the exact `missing_step` and whether it is `safe_to_retry`), or `unavailable`.
 
 - ~1 credit per completed action; **failed actions are refunded**.
 - Send an `Idempotency-Key` header on retries — the same key maps to the same billing task, so a retried call is never charged twice.
@@ -127,7 +127,7 @@ Every failure refunds the credit reservation and sets `trace_id`, a 7-day redact
 | `POST /api/register` | Email-code fallback: sends a verification code, returns a `deviceId` |
 | `POST /api/verify` | Verify the email code and receive the `aw_` key plus MCP setup command |
 
-## Readiness and billing (www.agentweb.us)
+## Billing (www.agentweb.us)
 
 | Endpoint | What it does |
 |---|---|
