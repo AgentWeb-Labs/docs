@@ -58,7 +58,7 @@
           {
             "group": "Reference",
             "pages": [
-              "api",
+              "rest-api",
               "scopes",
               "webhooks",
               "streaming",
@@ -81,6 +81,10 @@
     }
   },
   "redirects": [
+    {
+      "source": "/api",
+      "destination": "/rest-api"
+    },
     {
       "source": "/install-agentweb",
       "destination": "/quickstart"
