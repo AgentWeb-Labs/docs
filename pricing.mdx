@@ -1,34 +1,25 @@
 ---
 title: "Pricing"
 sidebarTitle: "Pricing"
-description: "Pay as you go at $0.05 per completed action with credit blocks that never expire, or Enterprise for companies running AgentWeb inside their own product."
+description: "AgentWeb pricing is custom and scoped to your workload. Only completed actions are billed, and failed actions are not charged."
 ---
 
-AgentWeb prices by verified work. One action is one executed step on a website (sending a message, submitting a form, placing an order step), metered in the dashboard as one credit per completed action. Reading pages is free up to 20 reads an hour per account (after that a read is priced like an action), your balance is always visible in the dashboard (with per-session receipts on the Usage tab and a warning when you run low), and only work that verifiably completes is billed. Failed tasks are never billed: if AgentWeb fails to complete a task, the retry is on us.
+AgentWeb prices by verified work. One action is one executed step on a website (sending a message, submitting a form, placing an order step), metered in the dashboard as one credit per completed action. Reading pages is free up to 20 reads an hour per account (after that a read counts as an action), your balance is always visible in the dashboard (with per-session receipts on the Usage tab and a warning when you run low), and only work that verifiably completes is billed. Failed tasks are never billed: if AgentWeb fails to complete a task, the retry is on us.
 
 REST API calls meter identically: one completed action through POST /api/execute is one credit, exactly as over MCP, with the same refund on failure.
 
-Creating an account is free, with any email. Actions run once credits are added in the dashboard.
+Creating an account is free, with any email.
 
-## Pay as you go
+## Custom pricing
 
-$0.05 per completed action. No subscription, no monthly minimum.
+Pricing is custom and scoped to your workload: the sites your agents act on, your volume, and the support you need. Talk to us for a quote.
 
-- Credit blocks of $25 (500 actions), $50 (1,000 actions), and $100 (2,000 actions)
-- Credits never expire
 - Works over MCP and the REST API with the aw_ API key
+- Only completed actions are billed
 - One shared balance per workspace: invite your team and every member draws on it
 - Balance and per-session receipts in the dashboard
 - Verified receipt on every task
-
-## Enterprise
-
-Custom pricing for companies running AgentWeb inside their own AI assistant or product.
-
-- Everything in Pay as you go
-- Custom volume pricing and terms
 - Performance SLA
-- SOC 2 (audit in progress)
 - Custom action maps for private software
 - Advanced usage insights
 - Dedicated support and migration
@@ -37,4 +28,4 @@ Book a demo at https://www.agentweb.us/demo or email support@agentweb.us.
 
 ## Checkout
 
-Live checkout terms always come from the verified billing catalog inside a signed-in session; this page lists indicative prices only. Self-serve checkout sells the credit blocks above from the dashboard. Enterprise is sales-led. Paid credits are granted only after Dodo webhook signature verification, and API keys held by an agent connection cannot start checkout.
+This page lists no prices. Checkout terms always come from the verified billing catalog inside a signed-in session. Paid credits are granted only after payment webhook signature verification, and API keys held by an agent connection cannot start checkout.
